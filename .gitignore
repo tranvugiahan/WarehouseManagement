@@ -1,0 +1,26 @@
+# Visual Studio and .NET outputs
+.vs/
+.vscode/
+**/bin/
+**/obj/
+*.csproj.user
+*.suo
+*.user
+TestResults/
+*.log
+
+# Local credentials and machine-specific settings
+.env
+.env.*
+!.env.example
+**/appsettings.Local.json
+**/secrets.json
+*.pfx
+*.bak
+*.mdf
+*.ldf
+
+# Reference project and previous template copies
+/FinalProject/
+/template-backup/
+**/previous-generation/

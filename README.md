@@ -1,7 +1,7 @@
 # WarehouseManagement
 
 Khung ASP.NET Core MVC + REST API cho đồ án quản lý kho, theo SRS (1).docx.
-Một project .NET 8, tổ chức ba lớp. Chưa triển khai nghiệp vụ hoặc đăng nhập.
+Một project .NET 8, tổ chức ba lớp. Đã có 15 endpoints danh mục, đơn vị tính, nhà cung cấp; chưa triển khai đăng nhập.
 
 ## Chạy sau khi clone
 
@@ -14,12 +14,12 @@ dotnet build WarehouseManagement.sln --no-restore
 dotnet run --project WarehouseManagement --launch-profile http
 ```
 
-- Trang MVC: http://localhost:5265/
-- API kiểm tra ứng dụng: GET http://localhost:5265/api/health
+- Trang MVC: http://localhost:8080/
+- API kiểm tra ứng dụng: GET http://localhost:8080/api/health
 - Kết quả API: HTTP 200, JSON `{"status":"ok"}`.
 - Ứng dụng khởi động được khi chưa có SQL Server. Health chỉ kiểm tra web, không kiểm tra database.
 - Dùng Postman gửi GET tới URL API trên; không cần body.
-- Muốn chạy HTTPS: dùng profile https, mở https://localhost:7166/.
+- Muốn chạy HTTPS: dùng profile https, mở https://localhost:8443/.
   Nếu máy chưa tin chứng chỉ local, chạy `dotnet dev-certs https --trust`.
 - Trong Visual Studio: mở solution, chọn WarehouseManagement làm Startup Project và chạy.
 - Nếu trùng cổng, dừng ứng dụng dùng cổng đó hoặc đổi launchSettings.json trên máy của bạn.
@@ -54,11 +54,11 @@ WarehouseManagement/
 | --- | --- | --- |
 | Giao tiếp | Controllers, Views, Components, wwwroot | HTTP, JSON, giao diện |
 | Nghiệp vụ | Services | Quyền nghiệp vụ, validation, điều phối thao tác |
-| Dữ liệu | AppData, AppData/Repositories | DbContext, truy vấn, stored procedure |
+| Dữ liệu | AppData/Repositories, Models/WarehouseDbContext.cs | DbContext, truy vấn, stored procedure |
 
 Controllers → Services → AppData/Repositories → SQL Server.
 Models chứa entity, DTO, ViewModel; chỉ chia nhỏ khi có nhiều file.
-API dùng Controllers/Api và trả DTO; MVC controller trả View.
+API dùng Controllers/Api, nhận request DTO tại Models/Requests; hiện trả entity danh mục. MVC controller trả View.
 Interfaces đặt cùng thư mục với service/repository khi cần, chưa tạo thêm tầng thư mục.
 
 Components dành cho View Component dùng chung. Areas là tùy chọn cho khu vực riêng.
@@ -77,7 +77,7 @@ dotnet user-secrets set "ConnectionStrings:WarehouseDb" "Server=.;Database=wareh
 ```
 
 UserSecretsId đã có trong csproj. Secrets được nạp ở môi trường Development.
-Khung hiện chưa có DbContext hoặc đăng ký kết nối; cấu hình trên chuẩn bị cho bước triển khai Data.
+DbContext đã scaffold tại Models/WarehouseDbContext.cs. Appsettings dùng Windows Authentication; cấu hình User Secrets ở trên dùng cho SQL Authentication và được ưu tiên trong Development.
 Không dùng tài khoản sa như tài khoản đăng nhập giao diện.
 
 File warehouse_db_sqlserver.sql là nguồn schema gồm bảng, trigger, procedure và view.
@@ -102,7 +102,7 @@ destination là văn bản trên phiếu xuất. Không có đa kho, POS, thanh 
 - Chỉ thay đổi tồn qua nghiệp vụ hợp lệ và tạo StockMovement.
 - Admin/Manager duyệt; backend/API luôn kiểm tra quyền.
 - Sản phẩm/NCC ngừng sử dụng thay vì xóa lịch sử.
-- Chưa có API sản phẩm, nhập/xuất, phân quyền hay chức năng database trong khung này.
+- Đã có CRUD danh mục, đơn vị tính, nhà cung cấp; chưa có API sản phẩm, nhập/xuất hay phân quyền.
 
 ## Quy ước Git cho nhóm
 
@@ -127,3 +127,21 @@ git commit -m "Initialize warehouse MVC and API skeleton"
 
 Sau khi tạo repository trống trên dịch vụ Git, thêm remote của nhóm rồi push.
 Không có remote được cấu hình tự động. README này không chứa mật khẩu thực.
+
+## Demo API danh mục
+
+Ba nhóm URL: /api/categories, /api/units, /api/suppliers.
+Mỗi nhóm có GET danh sách, GET /{id}, POST, PUT /{id}, DELETE /{id}.
+DELETE đổi status thành INACTIVE, không xóa vật lý; GET vẫn trả cả bản ghi INACTIVE.
+
+POST categories/units: {"name":"Tên mới"} (service tự đặt ACTIVE).
+PUT categories/units: {"name":"Tên sửa","status":"ACTIVE"}.
+Supplier có thêm phone, email, address (không bắt buộc).
+PUT thay thế các trường có thể sửa; các trường tùy chọn bị bỏ qua sẽ thành null.
+Status trên PUT bắt buộc là ACTIVE hoặc INACTIVE.
+Không gửi Products/ImportOrders; request DTO không nhận các quan hệ này.
+POST trả 201; PUT/DELETE thành công trả 204, không có response body.
+
+Scaffold lại: giữ CatalogEntities.Custom.cs, IEntity.cs và thư mục Requests.
+Chỉ scaffold các file sinh tự động; không xóa cả thư mục Models.
+Không sinh OnConfiguring chứa connection string; tiếp tục dùng DI trong Program.cs.

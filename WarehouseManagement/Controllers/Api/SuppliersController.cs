@@ -15,8 +15,6 @@ public class SuppliersController : ControllerBase
     {
         _service = service;
     }
-
-    // GET /api/suppliers
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {

@@ -15,6 +15,9 @@ dotnet run --project WarehouseManagement --launch-profile http
 ```
 
 - Trang MVC: http://localhost:8080/
+- Swagger UI (Development): http://localhost:8080/swagger hoặc https://localhost:8443/swagger khi chạy profile https.
+- Visual Studio mở Swagger khi Run. Chọn endpoint → Try it out → nhập ID/JSON → Execute.
+- OpenAPI JSON: /swagger/v1/swagger.json. Swagger tự đọc các API controller và request DTO.
 - API kiểm tra ứng dụng: GET http://localhost:8080/api/health
 - Kết quả API: HTTP 200, JSON `{"status":"ok"}`.
 - Ứng dụng khởi động được khi chưa có SQL Server. Health chỉ kiểm tra web, không kiểm tra database.

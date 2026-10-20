@@ -1,0 +1,172 @@
+@{
+    ViewData["Title"] = "Kiểm kê Kho hàng";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Kiểm kê Kho hàng</h1>
+        <p class="page-subtitle">So khớp tồn kho sổ sách và tồn thực tế, ghi nhận chênh lệch và cân bằng kho tự động</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('createStockTakeModal')">
+        <i class="fa-solid fa-plus"></i> Tạo phiếu kiểm kê
+    </button>
+</div>
+
+<!-- THANH TÌM KIẾM & BỘ LỌC -->
+<div class="card toolbar-card">
+    <div class="toolbar">
+        <div class="search-box">
+            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="searchStockTakeInput" placeholder="Tìm theo mã phiếu KK, người kiểm kê..." onkeyup="filterStockTake()" />
+        </div>
+        <div class="filters">
+            <select id="stockTakeStatusFilter" onchange="filterStockTake()" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="pending">Đang kiểm kê</option>
+                <option value="completed">Đã cân bằng kho</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- BẢNG DỮ LIỆU PHIẾU KIỂM KÊ -->
+<div class="card table-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>MÃ PHIẾU</th>
+                    <th>NGÀY KIỂM KÊ</th>
+                    <th>NGƯỜI KIỂM KÊ</th>
+                    <th>TỒN SỔ SÁCH</th>
+                    <th>TỒN THỰC TẾ</th>
+                    <th>CHÊNH LỆCH</th>
+                    <th>TRẠNG THÁI</th>
+                    <th class="text-right">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody id="stockTakeTableBody">
+                <tr data-status="pending">
+                    <td class="font-mono"><strong>KK-2026-003</strong></td>
+                    <td style="color:#64748b;">12/10/2026</td>
+                    <td class="font-medium">Trần Thị B</td>
+                    <td>1,260</td>
+                    <td>1,250</td>
+                    <td><span class="diff-negative">-10 Lon (Thiếu)</span></td>
+                    <td><span class="status-badge status-pending">Đang kiểm kê</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Cân bằng kho" onclick="alert('Đã xác nhận cân bằng kho theo số thực tế!')"><i class="fa-solid fa-scale-balanced"></i></button>
+                        <button class="btn-action" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+                <tr data-status="completed">
+                    <td class="font-mono"><strong>KK-2026-002</strong></td>
+                    <td style="color:#64748b;">30/09/2026</td>
+                    <td class="font-medium">Nguyễn Văn A</td>
+                    <td>500</td>
+                    <td>502</td>
+                    <td><span class="diff-positive">+2 Thùng (Thừa)</span></td>
+                    <td><span class="status-badge status-completed">Đã cân bằng</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+                <tr data-status="completed">
+                    <td class="font-mono"><strong>KK-2026-001</strong></td>
+                    <td style="color:#64748b;">31/08/2026</td>
+                    <td class="font-medium">Lê Hoàng Nam</td>
+                    <td>850</td>
+                    <td>850</td>
+                    <td><span class="diff-zero">Khớp 100%</span></td>
+                    <td><span class="status-badge status-completed">Đã cân bằng</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PHÂN TRANG -->
+    <div class="table-pagination">
+        <span class="pagination-info">Hiển thị 3 trên 3 phiếu kiểm kê</span>
+        <div class="pagination-buttons">
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="btn-page active">1</button>
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TẠO PHIẾU KIỂM KÊ -->
+<div id="createStockTakeModal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 650px;">
+        <div class="modal-header">
+            <h3>Tạo phiếu kiểm kê kho</h3>
+            <button class="modal-close" onclick="closeModal('createStockTakeModal')">&times;</button>
+        </div>
+        <form onsubmit="handleSaveStockTake(event)">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Mã phiếu kiểm kê</label>
+                        <input type="text" class="form-input" value="KK-2026-004" readonly style="background:#f1f5f9;" />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Ngày kiểm kê</label>
+                        <input type="date" class="form-input" value="2026-10-13" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phạm vi kiểm kê</label>
+                    <select class="form-select">
+                        <option>Toàn bộ kho hàng</option>
+                        <option>Nhóm đồ uống & Giải khát</option>
+                        <option>Nhóm bánh kẹo</option>
+                        <option>Nhóm gia vị</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ghi chú mục đích kiểm kê</label>
+                    <textarea class="form-input" rows="3" placeholder="Kiểm kê định kỳ cuối tháng, kiểm kê đột xuất..."></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createStockTakeModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Bắt đầu kiểm đếm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function filterStockTake() {
+        const keyword = document.getElementById('searchStockTakeInput').value.toLowerCase();
+        const status = document.getElementById('stockTakeStatusFilter').value;
+        const rows = document.querySelectorAll('#stockTakeTableBody tr');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const rowStatus = row.getAttribute('data-status');
+
+            const matchText = text.includes(keyword);
+            const matchStatus = !status || rowStatus === status;
+
+            row.style.display = (matchText && matchStatus) ? '' : 'none';
+        });
+    }
+
+    function handleSaveStockTake(e) {
+        e.preventDefault();
+        alert('Tạo phiếu kiểm kê thành công! Vui lòng điền số lượng đếm thực tế.');
+        closeModal('createStockTakeModal');
+    }
+</script>
+}

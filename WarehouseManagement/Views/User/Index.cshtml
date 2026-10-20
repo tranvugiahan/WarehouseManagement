@@ -1,0 +1,205 @@
+@{
+    ViewData["Title"] = "Quản lý Tài khoản";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Quản lý Tài khoản</h1>
+        <p class="page-subtitle">Phân quyền nhân viên, quản lý tài khoản và trạng thái truy cập hệ thống</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('createUserModal')">
+        <i class="fa-solid fa-user-plus"></i> Thêm tài khoản
+    </button>
+</div>
+
+<!-- THANH CÔNG CỤ TÌM KIẾM & BỘ LỌC -->
+<div class="card toolbar-card">
+    <div class="toolbar">
+        <div class="search-box">
+            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="searchUserInput" placeholder="Tìm theo username, họ tên, email..." onkeyup="filterUsers()" />
+        </div>
+        <div class="filters">
+            <select id="userRoleFilter" onchange="filterUsers()" class="form-select">
+                <option value="">Tất cả vai trò</option>
+                <option value="Admin">Admin</option>
+                <option value="Manager">Quản lý kho</option>
+                <option value="Staff">Nhân viên kho</option>
+            </select>
+            <select id="userStatusFilter" onchange="filterUsers()" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active">Hoạt động</option>
+                <option value="inactive">Đã khóa</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- BẢNG DỮ LIỆU TÀI KHOẢN -->
+<div class="card table-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>TÀI KHOẢN</th>
+                    <th>HỌ VÀ TÊN</th>
+                    <th>EMAIL</th>
+                    <th>VAI TRÒ</th>
+                    <th>TRẠNG THÁI</th>
+                    <th>NGÀY TẠO</th>
+                    <th class="text-right">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <tr data-role="Admin" data-status="active">
+                    <td class="font-mono"><strong>admin</strong></td>
+                    <td class="font-medium">Nguyễn Văn A</td>
+                    <td>admin@wms.com</td>
+                    <td><span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:600;">Quản trị viên</span></td>
+                    <td><span class="status-badge status-active">Hoạt động</span></td>
+                    <td style="color:#64748b;">10/01/2026</td>
+                    <td class="text-right">
+                        <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
+                    </td>
+                </tr>
+                <tr data-role="Manager" data-status="active">
+                    <td class="font-mono"><strong>manager_kho</strong></td>
+                    <td class="font-medium">Trần Thị B</td>
+                    <td>manager@wms.com</td>
+                    <td><span class="badge" style="background:#fef3c7; color:#b45309; font-weight:600;">Quản lý kho</span></td>
+                    <td><span class="status-badge status-active">Hoạt động</span></td>
+                    <td style="color:#64748b;">12/01/2026</td>
+                    <td class="text-right">
+                        <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
+                    </td>
+                </tr>
+                <tr data-role="Staff" data-status="active">
+                    <td class="font-mono"><strong>staff_nam</strong></td>
+                    <td class="font-medium">Lê Hoàng Nam</td>
+                    <td>nam.lh@wms.com</td>
+                    <td><span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;">Nhân viên kho</span></td>
+                    <td><span class="status-badge status-active">Hoạt động</span></td>
+                    <td style="color:#64748b;">15/02/2026</td>
+                    <td class="text-right">
+                        <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
+                    </td>
+                </tr>
+                <tr data-role="Staff" data-status="inactive">
+                    <td class="font-mono"><strong>staff_tam</strong></td>
+                    <td class="font-medium">Võ Minh Tâm</td>
+                    <td>tam.vm@wms.com</td>
+                    <td><span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;">Nhân viên kho</span></td>
+                    <td><span class="status-badge status-inactive">Đã khóa</span></td>
+                    <td style="color:#64748b;">20/02/2026</td>
+                    <td class="text-right">
+                        <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action" title="Mở khóa"><i class="fa-solid fa-lock-open"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PHÂN TRANG -->
+    <div class="table-pagination">
+        <span class="pagination-info">Hiển thị 4 trên 4 tài khoản</span>
+        <div class="pagination-buttons">
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="btn-page active">1</button>
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL THÊM TÀI KHOẢN -->
+<div id="createUserModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Thêm tài khoản mới</h3>
+            <button class="modal-close" onclick="closeModal('createUserModal')">&times;</button>
+        </div>
+        <form onsubmit="handleSaveUser(event)">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Tên đăng nhập <span class="required">*</span></label>
+                        <input type="text" class="form-input" placeholder="VD: staff_kho1" required />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Mật khẩu ban đầu <span class="required">*</span></label>
+                        <input type="password" class="form-input" placeholder="••••••••" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Họ và tên <span class="required">*</span></label>
+                        <input type="text" class="form-input" placeholder="Nguyễn Văn..." required />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" class="form-input" placeholder="email@wms.com" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Vai trò (Phân quyền) <span class="required">*</span></label>
+                        <select class="form-select" required>
+                            <option value="Staff">Nhân viên kho (Xem, Nhập, Xuất)</option>
+                            <option value="Manager">Quản lý kho (Duyệt phiếu, Kiểm kê, Báo cáo)</option>
+                            <option value="Admin">Quản trị viên (Toàn quyền hệ thống)</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select">
+                            <option value="Active">Hoạt động</option>
+                            <option value="Inactive">Khóa tài khoản</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createUserModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu tài khoản</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function filterUsers() {
+        const keyword = document.getElementById('searchUserInput').value.toLowerCase();
+        const role = document.getElementById('userRoleFilter').value;
+        const status = document.getElementById('userStatusFilter').value;
+        const rows = document.querySelectorAll('#userTableBody tr');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const rowRole = row.getAttribute('data-role');
+            const rowStatus = row.getAttribute('data-status');
+
+            const matchText = text.includes(keyword);
+            const matchRole = !role || rowRole === role;
+            const matchStatus = !status || rowStatus === status;
+
+            row.style.display = (matchText && matchRole && matchStatus) ? '' : 'none';
+        });
+    }
+
+    function handleSaveUser(e) {
+        e.preventDefault();
+        alert('Tạo tài khoản thành công!');
+        closeModal('createUserModal');
+    }
+</script>
+}

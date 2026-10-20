@@ -1,0 +1,177 @@
+@{
+    ViewData["Title"] = "Phiếu Xuất Hủy / Hỏng Hàng";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Xuất Hủy & Hỏng Hàng</h1>
+        <p class="page-subtitle">Quản lý và ghi nhận hàng hóa hư hỏng, vỡ bao bì, hoặc hết hạn sử dụng cần tiêu hủy</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('createDamagedModal')">
+        <i class="fa-solid fa-plus"></i> Lập phiếu hủy hàng
+    </button>
+</div>
+
+<!-- THANH TÌM KIẾM & BỘ LỌC -->
+<div class="card toolbar-card">
+    <div class="toolbar">
+        <div class="search-box">
+            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="searchDamagedInput" placeholder="Tìm theo mã phiếu PH, tên sản phẩm, lý do..." onkeyup="filterDamaged()" />
+        </div>
+        <div class="filters">
+            <select id="damagedReasonFilter" onchange="filterDamaged()" class="form-select">
+                <option value="">Tất cả lý do</option>
+                <option value="Hết hạn">Hết hạn sử dụng</option>
+                <option value="Hỏng bao bì">Rách / Vỡ bao bì</option>
+                <option value="Lỗi bảo quản">Ẩm mốc / Lỗi bảo quản</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- BẢNG DỮ LIỆU PHIẾU HỦY -->
+<div class="card table-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>MÃ PHIẾU</th>
+                    <th>SẢN PHẨM TIÊU HỦY</th>
+                    <th>SỐ LƯỢNG</th>
+                    <th>LÝ DO TIÊU HỦY</th>
+                    <th>NGÀY LẬP</th>
+                    <th>NGƯỜI XÁC NHẬN</th>
+                    <th>TRẠNG THÁI</th>
+                    <th class="text-right">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody id="damagedTableBody">
+                <tr data-reason="Hết hạn">
+                    <td class="font-mono"><strong>PH-2026-003</strong></td>
+                    <td class="font-medium">Sữa Tươi Tiệt Trùng 1L</td>
+                    <td><span class="stock-badge out-stock">15 Hộp</span></td>
+                    <td><span class="badge" style="background:#fee2e2; color:#b91c1c;">Hết hạn sử dụng</span></td>
+                    <td style="color:#64748b;">12/10/2026</td>
+                    <td>Nguyễn Văn A</td>
+                    <td><span class="status-badge status-completed">Đã hủy kho</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+                <tr data-reason="Hỏng bao bì">
+                    <td class="font-mono"><strong>PH-2026-002</strong></td>
+                    <td class="font-medium">Coca Cola Lon 330ml</td>
+                    <td><span class="stock-badge out-stock">24 Lon</span></td>
+                    <td><span class="badge" style="background:#fef3c7; color:#b45309;">Móp méo khi vận chuyển</span></td>
+                    <td style="color:#64748b;">08/10/2026</td>
+                    <td>Trần Thị B</td>
+                    <td><span class="status-badge status-completed">Đã hủy kho</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+                <tr data-reason="Lỗi bảo quản">
+                    <td class="font-mono"><strong>PH-2026-001</strong></td>
+                    <td class="font-medium">Bánh Chocopie 12 Cái</td>
+                    <td><span class="stock-badge out-stock">6 Hộp</span></td>
+                    <td><span class="badge" style="background:#f1f5f9; color:#475569;">Bị ẩm mốc kho phụ</span></td>
+                    <td style="color:#64748b;">02/10/2026</td>
+                    <td>Nguyễn Văn A</td>
+                    <td><span class="status-badge status-completed">Đã hủy kho</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PHÂN TRANG -->
+    <div class="table-pagination">
+        <span class="pagination-info">Hiển thị 3 trên 3 phiếu hủy</span>
+        <div class="pagination-buttons">
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="btn-page active">1</button>
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TẠO PHIẾU HỦY -->
+<div id="createDamagedModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Lập phiếu hủy / hỏng hàng mới</h3>
+            <button class="modal-close" onclick="closeModal('createDamagedModal')">&times;</button>
+        </div>
+        <form onsubmit="handleSaveDamaged(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Chọn sản phẩm cần hủy <span class="required">*</span></label>
+                    <select class="form-select" required>
+                        <option value="">-- Chọn mặt hàng --</option>
+                        <option>Coca Cola Lon 330ml (Tồn: 1,250)</option>
+                        <option>Mì Hảo Hảo Chua Cay (Tồn: 18)</option>
+                        <option>Bánh Chocopie 12 Cái (Tồn: 0)</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Số lượng tiêu hủy <span class="required">*</span></label>
+                        <input type="number" class="form-input" placeholder="0" min="1" required />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Lý do tiêu hủy <span class="required">*</span></label>
+                        <select class="form-select" required>
+                            <option>Hết hạn sử dụng</option>
+                            <option>Rách / Vỡ bao bì</option>
+                            <option>Hàng lỗi chất lượng</option>
+                            <option>Ẩm mốc / Lỗi bảo quản</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Biện pháp xử lý / Ghi chú</label>
+                    <textarea class="form-input" rows="3" placeholder="Đổ bỏ, trả về nhà máy tái chế..."></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createDamagedModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Xác nhận xuất hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function filterDamaged() {
+        const keyword = document.getElementById('searchDamagedInput').value.toLowerCase();
+        const reason = document.getElementById('damagedReasonFilter').value;
+        const rows = document.querySelectorAll('#damagedTableBody tr');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const rowReason = row.getAttribute('data-reason');
+
+            const matchText = text.includes(keyword);
+            const matchReason = !reason || rowReason === reason;
+
+            row.style.display = (matchText && matchReason) ? '' : 'none';
+        });
+    }
+
+    function handleSaveDamaged(e) {
+        e.preventDefault();
+        alert('Đã lập phiếu hủy hàng và trừ số lượng trong kho!');
+        closeModal('createDamagedModal');
+    }
+</script>
+}

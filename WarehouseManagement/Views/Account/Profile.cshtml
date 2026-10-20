@@ -1,0 +1,97 @@
+@{
+    ViewData["Title"] = "Trang Cá Nhân & Đổi Mật Khẩu";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Hồ Sơ Cá Nhân</h1>
+        <p class="page-subtitle">Quản lý thông tin tài khoản và thiết lập bảo mật mật khẩu</p>
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- CỘT 1: THÔNG TIN CÁ NHÂN -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Thông tin tài khoản</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px;">
+                <div class="user-avatar" style="width: 64px; height: 64px; font-size: 24px; background: #0f172a; color: #ffffff;">A</div>
+                <div>
+                    <h2 style="font-size: 18px; font-weight: 700; color: #0f172a;">Nguyễn Văn A</h2>
+                    <span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:600; margin-top: 4px;">Quản trị viên (Admin)</span>
+                </div>
+            </div>
+
+            <form onsubmit="handleUpdateProfile(event)">
+                <div class="form-group">
+                    <label class="form-label">Tên đăng nhập</label>
+                    <input type="text" class="form-input" value="admin" readonly style="background:#f1f5f9;" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" class="form-input" value="Nguyễn Văn A" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email liên hệ</label>
+                    <input type="email" class="form-input" value="admin@wms.com" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ngày kích hoạt tài khoản</label>
+                    <input type="text" class="form-input" value="10/01/2026" readonly style="background:#f1f5f9;" />
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CỘT 2: ĐỔI MẬT KHẨU -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Bảo mật & Đổi mật khẩu</h3>
+        </div>
+        <div class="card-body">
+            <form onsubmit="handleChangePassword(event)">
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu hiện tại <span class="required">*</span></label>
+                    <input type="password" class="form-input" placeholder="••••••••" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu mới <span class="required">*</span></label>
+                    <input type="password" class="form-input" placeholder="Tối thiểu 6 ký tự..." required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Xác nhận mật khẩu mới <span class="required">*</span></label>
+                    <input type="password" class="form-input" placeholder="Nhập lại mật khẩu mới..." required />
+                </div>
+
+                <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 16px;">
+                    <p style="font-size: 12px; color: #64748b; margin: 0;">
+                        <i class="fa-solid fa-shield-halved" style="color:#2563eb; margin-right:4px;"></i> <strong>Mẹo an toàn:</strong> Sử dụng mật khẩu có chữ hoa, chữ thường và chữ số để đảm bảo tính bảo mật cho tài khoản quản lý kho.
+                    </p>
+                </div>
+
+                <div style="margin-top: 24px; text-align: right;">
+                    <button type="submit" class="btn btn-primary">Cập nhật mật khẩu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function handleUpdateProfile(e) {
+        e.preventDefault();
+        alert('Cập nhật thông tin tài khoản thành công!');
+    }
+
+    function handleChangePassword(e) {
+        e.preventDefault();
+        alert('Đổi mật khẩu thành công! Vui lòng sử dụng mật khẩu mới cho lần đăng nhập sau.');
+    }
+</script>
+}

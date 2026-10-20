@@ -1,0 +1,249 @@
+@{
+    ViewData["Title"] = "Nhóm hàng & Đơn vị tính";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Nhóm hàng & Đơn vị tính</h1>
+        <p class="page-subtitle">Quản lý phân loại sản phẩm và hệ thống đơn vị đo lường trong kho</p>
+    </div>
+    <div id="actionBtnContainer">
+        <button id="btnAddCategory" class="btn btn-primary" onclick="openModal('createCategoryModal')">
+            <i class="fa-solid fa-plus"></i> Thêm nhóm hàng
+        </button>
+        <button id="btnAddUnit" class="btn btn-primary" style="display: none;" onclick="openModal('createUnitModal')">
+            <i class="fa-solid fa-plus"></i> Thêm đơn vị tính
+        </button>
+    </div>
+</div>
+
+<!-- THANH CHUYỂN TAB -->
+<div class="tab-container">
+    <button class="tab-btn active" onclick="switchTab('categories')"><i class="fa-solid fa-folder"></i> Danh mục hàng hóa (4)</button>
+    <button class="tab-btn" onclick="switchTab('units')"><i class="fa-solid fa-ruler-combined"></i> Đơn vị tính (6)</button>
+</div>
+
+<!-- TAB 1: DANH MỤC HÀNG HÓA -->
+<div id="tabCategories" class="tab-pane active">
+    <div class="card table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>MÃ NHÓM</th>
+                        <th>TÊN NHÓM HÀNG</th>
+                        <th>MÔ TẢ</th>
+                        <th>SỐ LƯỢNG SP</th>
+                        <th class="text-right">THAO TÁC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-mono"><strong>CAT-DOUONG</strong></td>
+                        <td class="font-medium">Đồ uống & Giải khát</td>
+                        <td>Các loại nước ngọt, nước suối, trà lon</td>
+                        <td><span class="badge badge-gray">42 sản phẩm</span></td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>CAT-BANHKEO</strong></td>
+                        <td class="font-medium">Bánh kẹo & Snack</td>
+                        <td>Bánh quy, bánh mềm, kẹo dẻo các loại</td>
+                        <td><span class="badge badge-gray">35 sản phẩm</span></td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>CAT-GIAVI</strong></td>
+                        <td class="font-medium">Gia vị & Phụ gia thực phẩm</td>
+                        <td>Nước mắm, bột ngọt, hạt nêm, dầu ăn</td>
+                        <td><span class="badge badge-gray">28 sản phẩm</span></td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>CAT-DOHOP</strong></td>
+                        <td class="font-medium">Đồ đóng hộp & Chế biến sẵn</td>
+                        <td>Cá hộp, thịt hộp, mì gói</td>
+                        <td><span class="badge badge-gray">43 sản phẩm</span></td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: ĐƠN VỊ TÍNH -->
+<div id="tabUnits" class="tab-pane">
+    <div class="card table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>MÃ ĐVT</th>
+                        <th>TÊN ĐƠN VỊ TÍNH</th>
+                        <th>GHI CHÚ / MÔ TẢ</th>
+                        <th class="text-right">THAO TÁC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-mono"><strong>UNIT-LON</strong></td>
+                        <td class="font-medium">Lon</td>
+                        <td>Đơn vị cho đồ uống đóng lon (330ml)</td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>UNIT-CHAI</strong></td>
+                        <td class="font-medium">Chai</td>
+                        <td>Chai thủy tinh hoặc chai nhựa</td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>UNIT-THUNG</strong></td>
+                        <td class="font-medium">Thùng</td>
+                        <td>Quy cách đóng thùng carton (24 lon hoặc 30 gói)</td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>UNIT-HOP</strong></td>
+                        <td class="font-medium">Hộp</td>
+                        <td>Hộp giấy hoặc hộp thiếc</td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>UNIT-KG</strong></td>
+                        <td class="font-medium">Kg</td>
+                        <td>Kilogram (Cân đo trọng lượng)</td>
+                        <td class="text-right">
+                            <button class="btn-action edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-action delete"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL THÊM NHÓM HÀNG -->
+<div id="createCategoryModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Thêm nhóm hàng mới</h3>
+            <button class="modal-close" onclick="closeModal('createCategoryModal')">&times;</button>
+        </div>
+        <form onsubmit="handleSaveCategory(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Mã nhóm hàng <span class="required">*</span></label>
+                    <input type="text" class="form-input" placeholder="VD: CAT-DOUONG" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tên nhóm hàng <span class="required">*</span></label>
+                    <input type="text" class="form-input" placeholder="Nhập tên danh mục..." required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-input" rows="3" placeholder="Mô tả nhóm hàng..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createCategoryModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu nhóm hàng</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL THÊM ĐƠN VỊ TÍNH -->
+<div id="createUnitModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Thêm đơn vị tính mới</h3>
+            <button class="modal-close" onclick="closeModal('createUnitModal')">&times;</button>
+        </div>
+        <form onsubmit="handleSaveUnit(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Mã đơn vị tính <span class="required">*</span></label>
+                    <input type="text" class="form-input" placeholder="VD: UNIT-GOI" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tên đơn vị tính <span class="required">*</span></label>
+                    <input type="text" class="form-input" placeholder="VD: Gói, Bịch, Bao..." required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ghi chú</label>
+                    <input type="text" class="form-input" placeholder="Mô tả quy cách..." />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createUnitModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu đơn vị tính</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function switchTab(tab) {
+        const btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(b => b.classList.remove('active'));
+
+        document.getElementById('tabCategories').classList.remove('active');
+        document.getElementById('tabUnits').classList.remove('active');
+
+        if (tab === 'categories') {
+            btns[0].classList.add('active');
+            document.getElementById('tabCategories').classList.add('active');
+            document.getElementById('btnAddCategory').style.display = 'inline-flex';
+            document.getElementById('btnAddUnit').style.display = 'none';
+        } else {
+            btns[1].classList.add('active');
+            document.getElementById('tabUnits').classList.add('active');
+            document.getElementById('btnAddCategory').style.display = 'none';
+            document.getElementById('btnAddUnit').style.display = 'inline-flex';
+        }
+    }
+
+    function handleSaveCategory(e) {
+        e.preventDefault();
+        alert('Đã lưu nhóm hàng thành công!');
+        closeModal('createCategoryModal');
+    }
+
+    function handleSaveUnit(e) {
+        e.preventDefault();
+        alert('Đã lưu đơn vị tính thành công!');
+        closeModal('createUnitModal');
+    }
+</script>
+}

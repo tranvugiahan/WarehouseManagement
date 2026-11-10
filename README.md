@@ -76,11 +76,10 @@ Migrations để dành; không chạy migration khởi tạo trên schema SQL hi
 
 `POST /api/auth/logout` yêu cầu Bearer token còn hạn, không cần body và trả `204`. Backend thu hồi phiên hiện tại trong `refresh_sessions`; mọi access token và refresh token của phiên này sẽ nhận `401`. Mỗi request dùng Bearer token đều kiểm tra `sid` và trạng thái phiên trong database. JWT cũ không có `sid` sẽ không còn dùng được sau khi cập nhật ứng dụng.
 
-Database mới chỉ cần bảng `refresh_sessions`. Với database hiện có, [add_refresh_sessions.sql](add_refresh_sessions.sql) tạo bảng nếu thiếu. [remove_revoked_tokens.sql](remove_revoked_tokens.sql) xóa bảng `revoked_tokens` cũ sau khi được người quản lý database duyệt; script từ chối xóa nếu bảng có dữ liệu. Không chạy lại `warehouse_db_sqlserver.sql` trên database có dữ liệu vì script đó có lệnh xóa database. Trong SSMS, mở script được duyệt rồi Execute; hoặc chạy từ thư mục repo:
+Với database `warehouse_db` đã có bảng `users`, chạy duy nhất [warehouse_db_sqlserver.sql](warehouse_db_sqlserver.sql) để thêm bảng `refresh_sessions` nếu còn thiếu. Script có thể chạy lại, không xóa database, bảng hay dữ liệu. Bảng `revoked_tokens` cũ nếu đã tồn tại vẫn được giữ nguyên nhưng API hiện không dùng. Trong SSMS, mở file rồi Execute; hoặc chạy từ thư mục repo:
 
 ```powershell
-sqlcmd -S . -E -b -i add_refresh_sessions.sql
-sqlcmd -S . -E -b -i remove_revoked_tokens.sql
+sqlcmd -S . -E -b -i warehouse_db_sqlserver.sql
 ```
 
 Thay `.` bằng tên SQL Server của thành viên nếu khác; `-E` dùng Windows Authentication. Chưa có frontend hoặc đổi mật khẩu trong phạm vi này.
@@ -91,7 +90,7 @@ JWT có hạn 15 phút. Cấu hình khóa ký bí mật (ít nhất 32 byte) b�
 dotnet user-secrets set "Jwt:Key" "YOUR_RANDOM_SECRET_AT_LEAST_32_BYTES" --project WarehouseManagement
 ```
 
-Mật khẩu trong `users.password_hash` phải là hash do `Microsoft.AspNetCore.Identity.PasswordHasher<User>` tạo. Các hash mẫu trong `warehouse_db_sqlserver.sql` chỉ là placeholder và không thể đăng nhập. API chưa bảo vệ các endpoint danh mục hiện có bằng role; việc đó thuộc phần phân quyền tiếp theo.
+Mật khẩu trong `users.password_hash` phải là hash do `Microsoft.AspNetCore.Identity.PasswordHasher<User>` tạo. Hash của các tài khoản mẫu trong schema gốc chỉ là placeholder và không thể đăng nhập. API chưa bảo vệ các endpoint danh mục hiện có bằng role; việc đó thuộc phần phân quyền tiếp theo.
 
 ## Database và thông tin kết nối
 
@@ -108,9 +107,7 @@ UserSecretsId đã có trong csproj. Secrets được nạp ở môi trường D
 DbContext đã scaffold tại Models/WarehouseDbContext.cs. Appsettings dùng Windows Authentication; cấu hình User Secrets ở trên dùng cho SQL Authentication và được ưu tiên trong Development.
 Không dùng tài khoản sa như tài khoản đăng nhập giao diện.
 
-File warehouse_db_sqlserver.sql là nguồn schema gồm bảng, trigger, procedure và view.
-**Script có DROP DATABASE nếu warehouse_db tồn tại.** Chỉ chạy trên database phát triển
-có thể tạo lại; sao lưu và kiểm tra trước khi chạy trong SSMS.
+File warehouse_db_sqlserver.sql hiện là script cập nhật an toàn cho database đã có schema gốc; không dùng để tạo database từ đầu. Bản tạo schema gốc ở commit `ccae911` trong lịch sử Git. Nếu chưa có `warehouse_db`, cần tạo schema gốc trước rồi chạy file cập nhật này.
 Ứng dụng không tự chạy script hoặc tự tạo database.
 
 Khi bắt đầu phần Data, ánh xạ các bảng theo SQL, giữ khóa ghép, cột computed,

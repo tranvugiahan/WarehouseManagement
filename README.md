@@ -1,7 +1,7 @@
 # WarehouseManagement
 
 Khung ASP.NET Core MVC + REST API cho đồ án quản lý kho, theo SRS (1).docx.
-Một project .NET 8, tổ chức ba lớp. Đã có 15 endpoints danh mục, đơn vị tính, nhà cung cấp; chưa triển khai đăng nhập.
+Một project .NET 8, tổ chức ba lớp. Đã có 15 endpoints danh mục, đơn vị tính, nhà cung cấp và API xác thực JWT.
 
 ## Chạy sau khi clone
 
@@ -67,6 +67,31 @@ Interfaces đặt cùng thư mục với service/repository khi cần, chưa t�
 Components dành cho View Component dùng chung. Areas là tùy chọn cho khu vực riêng.
 Migrations để dành; không chạy migration khởi tạo trên schema SQL hiện có.
 .gitkeep giúp giữ các thư mục trống khi clone. Có thể bỏ khi thư mục đã có code.
+
+## API đăng nhập
+
+`POST /api/auth/login` nhận JSON `{"usernameOrEmail":"employee","password":"..."}`. Đăng nhập thành công trả `accessToken`, `expiresAt`, `refreshToken`, `refreshExpiresAt` (UTC), `userId`, `fullName`, `role`; dùng access token trong header `Authorization: Bearer <accessToken>` cho các API cần xác thực. Username và email đều được chấp nhận. Sai thông tin hoặc tài khoản `INACTIVE` đều trả `401` với cùng thông báo.
+
+`POST /api/auth/refresh` nhận JSON `{"refreshToken":"..."}` và không cần Bearer token. Thành công trả cùng cấu trúc với login, gồm access token và refresh token mới. Mỗi lần gọi, refresh token cũ mất hiệu lực và hạn phiên được gia hạn thêm 7 ngày; token cũ, hết hạn, đã đăng xuất hoặc tài khoản `INACTIVE` trả `401`. Access token có hạn 15 phút. Frontend cần lưu token an toàn và chủ động gọi refresh trước hoặc sau khi access token hết hạn; phiên chỉ tiếp tục khi được làm mới trong mỗi khoảng 7 ngày.
+
+`POST /api/auth/logout` yêu cầu Bearer token còn hạn, không cần body và trả `204`. Backend thu hồi phiên hiện tại trong `refresh_sessions`; mọi access token và refresh token của phiên này sẽ nhận `401`. Mỗi request dùng Bearer token đều kiểm tra `sid` và trạng thái phiên trong database. JWT cũ không có `sid` sẽ không còn dùng được sau khi cập nhật ứng dụng.
+
+Database mới chỉ cần bảng `refresh_sessions`. Với database hiện có, [add_refresh_sessions.sql](add_refresh_sessions.sql) tạo bảng nếu thiếu. [remove_revoked_tokens.sql](remove_revoked_tokens.sql) xóa bảng `revoked_tokens` cũ sau khi được người quản lý database duyệt; script từ chối xóa nếu bảng có dữ liệu. Không chạy lại `warehouse_db_sqlserver.sql` trên database có dữ liệu vì script đó có lệnh xóa database. Trong SSMS, mở script được duyệt rồi Execute; hoặc chạy từ thư mục repo:
+
+```powershell
+sqlcmd -S . -E -b -i add_refresh_sessions.sql
+sqlcmd -S . -E -b -i remove_revoked_tokens.sql
+```
+
+Thay `.` bằng tên SQL Server của thành viên nếu khác; `-E` dùng Windows Authentication. Chưa có frontend hoặc đổi mật khẩu trong phạm vi này.
+
+JWT có hạn 15 phút. Cấu hình khóa ký bí mật (ít nhất 32 byte) bằng User Secrets hoặc biến môi trường `Jwt__Key`; không ghi khóa vào `appsettings.json`:
+
+```powershell
+dotnet user-secrets set "Jwt:Key" "YOUR_RANDOM_SECRET_AT_LEAST_32_BYTES" --project WarehouseManagement
+```
+
+Mật khẩu trong `users.password_hash` phải là hash do `Microsoft.AspNetCore.Identity.PasswordHasher<User>` tạo. Các hash mẫu trong `warehouse_db_sqlserver.sql` chỉ là placeholder và không thể đăng nhập. API chưa bảo vệ các endpoint danh mục hiện có bằng role; việc đó thuộc phần phân quyền tiếp theo.
 
 ## Database và thông tin kết nối
 

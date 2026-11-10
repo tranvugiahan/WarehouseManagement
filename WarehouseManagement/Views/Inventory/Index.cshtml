@@ -1,0 +1,205 @@
+@{
+    ViewData["Title"] = "Quản lý Tồn kho & Biến động";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Tồn kho & Thẻ kho</h1>
+        <p class="page-subtitle">Theo dõi số lượng hàng tồn thực tế, mức cảnh báo an toàn và lịch sử xuất nhập biến động</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn btn-secondary" onclick="alert('Đang tải file Excel tồn kho...')"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
+        <a href="/StockTake/Index" class="btn btn-primary"><i class="fa-solid fa-clipboard-check"></i> Kiểm kê kho</a>
+    </div>
+</div>
+
+<!-- 4 THẺ TỔNG QUAN TỒN KHO -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon blue"><i class="fa-solid fa-boxes-stacked"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">12,450</span>
+            <span class="kpi-label">Tổng số lượng đơn vị tồn</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon green"><i class="fa-solid fa-coins"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">1,450,800,000 ₫</span>
+            <span class="kpi-label">Tổng giá trị vốn trong kho</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">6</span>
+            <span class="kpi-label">Sản phẩm dưới mức tối thiểu</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon rose"><i class="fa-solid fa-ban"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">2</span>
+            <span class="kpi-label">Sản phẩm hết hàng (Tồn = 0)</span>
+        </div>
+    </div>
+</div>
+
+<!-- THANH TÌM KIẾM & BỘ LỌC -->
+<div class="card toolbar-card">
+    <div class="toolbar">
+        <div class="search-box">
+            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="searchInventoryInput" placeholder="Tìm theo mã SKU, tên sản phẩm..." onkeyup="filterInventory()" />
+        </div>
+        <div class="filters">
+            <select id="inventoryStatusFilter" onchange="filterInventory()" class="form-select">
+                <option value="">Tất cả trạng thái tồn</option>
+                <option value="in-stock">Đủ hàng an toàn</option>
+                <option value="low-stock">Sắp hết hàng</option>
+                <option value="out-stock">Hết hàng</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- BẢNG TỒN KHO CHI TIẾT -->
+<div class="card table-card" style="margin-bottom: 28px;">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>MÃ SKU</th>
+                    <th>TÊN SẢN PHẨM</th>
+                    <th>ĐVT</th>
+                    <th>TỒN HIỆN TẠI</th>
+                    <th>MỨC TỐI THIỂU</th>
+                    <th>GIÁ TRỊ TỒN KHO</th>
+                    <th>ĐÁNH GIÁ TỒN</th>
+                    <th class="text-right">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+                <tr data-status="in-stock">
+                    <td class="font-mono"><strong>SKU-COCA-330</strong></td>
+                    <td class="font-medium">Coca Cola Lon 330ml</td>
+                    <td>Lon</td>
+                    <td><span class="stock-badge in-stock">1,250</span></td>
+                    <td>100</td>
+                    <td>10,625,000 ₫</td>
+                    <td><span style="color:#16a34a; font-weight:600; font-size:12px;">✅ An toàn</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem thẻ kho" onclick="alert('Mở lịch sử biến động sản phẩm')"><i class="fa-solid fa-file-lines"></i></button>
+                    </td>
+                </tr>
+                <tr data-status="low-stock">
+                    <td class="font-mono"><strong>SKU-MI-HAOHAO</strong></td>
+                    <td class="font-medium">Mì Tôm Hảo Hảo Chua Cay</td>
+                    <td>Thùng</td>
+                    <td><span class="stock-badge low-stock">18</span></td>
+                    <td>50</td>
+                    <td>2,016,000 ₫</td>
+                    <td><span style="color:#d97706; font-weight:600; font-size:12px;"><i class="fa-solid fa-triangle-exclamation"></i> Cần nhập thêm</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem thẻ kho"><i class="fa-solid fa-file-lines"></i></button>
+                    </td>
+                </tr>
+                <tr data-status="out-stock">
+                    <td class="font-mono"><strong>SKU-BANH-CHOCO</strong></td>
+                    <td class="font-medium">Bánh Chocopie 12 Cái</td>
+                    <td>Hộp</td>
+                    <td><span class="stock-badge out-stock">0</span></td>
+                    <td>30</td>
+                    <td>0 ₫</td>
+                    <td><span style="color:#dc2626; font-weight:600; font-size:12px;"><i class="fa-solid fa-ban"></i> Hết hàng</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem thẻ kho"><i class="fa-solid fa-file-lines"></i></button>
+                    </td>
+                </tr>
+                <tr data-status="in-stock">
+                    <td class="font-mono"><strong>SKU-NUOCMAM-CHINSU</strong></td>
+                    <td class="font-medium">Nước Mắm Nam Ngư 500ml</td>
+                    <td>Chai</td>
+                    <td><span class="stock-badge in-stock">340</span></td>
+                    <td>50</td>
+                    <td>10,880,000 ₫</td>
+                    <td><span style="color:#16a34a; font-weight:600; font-size:12px;">✅ An toàn</span></td>
+                    <td class="text-right">
+                        <button class="btn-action" title="Xem thẻ kho"><i class="fa-solid fa-file-lines"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- LỊCH SỬ BIẾN ĐỘNG GẦN ĐÂY (THẺ KHO) -->
+<div class="card">
+    <div class="card-header">
+        <h3>Lịch sử Biến động Kho gần đây (Thẻ kho hệ thống)</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>THỜI GIAN</th>
+                    <th>LOẠI PHIẾU</th>
+                    <th>MÃ CHỨNG TỪ</th>
+                    <th>SẢN PHẨM</th>
+                    <th>BIẾN ĐỘNG</th>
+                    <th>TỒN SAU GD</th>
+                    <th>NGƯỜI THỰC HIỆN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="color:#64748b;">12/10/2026 15:30</td>
+                    <td><span class="badge" style="background:#eff6ff; color:#2563eb;">Nhập kho</span></td>
+                    <td class="font-mono"><strong>PN-2026-004</strong></td>
+                    <td>Coca Cola Lon 330ml</td>
+                    <td class="diff-positive">+2,000</td>
+                    <td><strong>1,250</strong></td>
+                    <td>Lê Hoàng Nam</td>
+                </tr>
+                <tr>
+                    <td style="color:#64748b;">11/10/2026 10:15</td>
+                    <td><span class="badge" style="background:#fdf2f8; color:#db2777;">Xuất kho</span></td>
+                    <td class="font-mono"><strong>PX-2026-014</strong></td>
+                    <td>Mì Tôm Hảo Hảo Chua Cay</td>
+                    <td class="diff-negative">-80</td>
+                    <td><strong>18</strong></td>
+                    <td>Nguyễn Văn A</td>
+                </tr>
+                <tr>
+                    <td style="color:#64748b;">08/10/2026 16:40</td>
+                    <td><span class="badge" style="background:#fef2f2; color:#dc2626;">Xuất hủy</span></td>
+                    <td class="font-mono"><strong>PH-2026-002</strong></td>
+                    <td>Coca Cola Lon 330ml</td>
+                    <td class="diff-negative">-24</td>
+                    <td><strong>3,250</strong></td>
+                    <td>Trần Thị B</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function filterInventory() {
+        const keyword = document.getElementById('searchInventoryInput').value.toLowerCase();
+        const status = document.getElementById('inventoryStatusFilter').value;
+        const rows = document.querySelectorAll('#inventoryTableBody tr');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const rowStatus = row.getAttribute('data-status');
+
+            const matchText = text.includes(keyword);
+            const matchStatus = !status || rowStatus === status;
+
+            row.style.display = (matchText && matchStatus) ? '' : 'none';
+        });
+    }
+</script>
+}

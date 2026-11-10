@@ -1,4 +1,8 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WarehouseManagement.AppData.Repositories;
 using WarehouseManagement.Models;
@@ -8,6 +12,45 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddProblemDetails();
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("Chưa cấu hình Jwt:Key trong User Secrets hoặc biến môi trường.");
+if (Encoding.UTF8.GetByteCount(jwtKey) < 32)
+    throw new InvalidOperationException("Jwt:Key phải dài ít nhất 32 byte.");
+const string jwtIssuer = "WarehouseManagement";
+const string jwtAudience = "WarehouseManagement.Api";
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true, ValidIssuer = jwtIssuer,
+            ValidateAudience = true, ValidAudience = jwtAudience,
+            ValidateLifetime = true, ClockSkew = TimeSpan.Zero,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var sessionId = context.Principal?.FindFirst("sid")?.Value;
+                var userIdText = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? context.Principal?.FindFirst("sub")?.Value;
+                if (string.IsNullOrWhiteSpace(sessionId) || !int.TryParse(userIdText, out var userId) ||
+                    !await context.HttpContext.RequestServices.GetRequiredService<IRefreshSessionStore>()
+                        .IsActiveAsync(sessionId, userId))
+                    context.Fail("Phiên đăng nhập đã hết hạn hoặc bị thu hồi.");
+            }
+        };
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<IUserStore, UserStore>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IRefreshSessionStore, RefreshSessionStore>();
+builder.Services.AddScoped<RefreshSessionService>();
+builder.Services.AddScoped<LogoutService>();
+builder.Services.AddSingleton(new JwtTokenService(jwtIssuer, jwtAudience, jwtKey));
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -59,6 +102,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Các API có [Route].

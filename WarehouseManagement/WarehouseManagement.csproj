@@ -2,6 +2,7 @@
 
   <!-- Three logical layers live in this single project. -->
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <Folder Include="Controllers\Api\" />
     <Folder Include="Models\" />
     <Folder Include="AppData\Repositories\" />

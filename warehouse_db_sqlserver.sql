@@ -65,6 +65,19 @@ CREATE TABLE dbo.users (
 );
 GO
 
+CREATE TABLE dbo.refresh_sessions (
+    id         VARCHAR(32)  NOT NULL CONSTRAINT pk_refresh_sessions PRIMARY KEY,
+    user_id    INT          NOT NULL,
+    token_hash VARCHAR(64)  NOT NULL,
+    expires_at DATETIME2(0) NOT NULL,
+    created_at DATETIME2(0) NOT NULL CONSTRAINT df_refresh_sessions_created DEFAULT (SYSUTCDATETIME()),
+    revoked_at DATETIME2(0) NULL,
+    CONSTRAINT fk_refresh_sessions_user FOREIGN KEY (user_id) REFERENCES dbo.users (id),
+    CONSTRAINT uq_refresh_sessions_token_hash UNIQUE (token_hash)
+);
+CREATE INDEX idx_refresh_sessions_user_id ON dbo.refresh_sessions (user_id);
+GO
+
 -- 2.2 DANH MỤC (FR3)
 CREATE TABLE dbo.categories (
     id      INT IDENTITY(1,1) NOT NULL,

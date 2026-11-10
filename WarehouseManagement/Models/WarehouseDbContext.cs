@@ -31,6 +31,8 @@ public partial class WarehouseDbContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<RefreshSession> RefreshSessions { get; set; }
+
     public virtual DbSet<StatusHistory> StatusHistories { get; set; }
 
     public virtual DbSet<StockMovement> StockMovements { get; set; }
@@ -64,6 +66,20 @@ public partial class WarehouseDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Vietnamese_CI_AS");
+
+        modelBuilder.Entity<RefreshSession>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("refresh_sessions");
+            entity.HasIndex(e => e.TokenHash).IsUnique();
+            entity.Property(e => e.Id).HasMaxLength(32).IsUnicode(false).HasColumnName("id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.TokenHash).HasMaxLength(64).IsUnicode(false).HasColumnName("token_hash");
+            entity.Property(e => e.ExpiresAt).HasPrecision(0).HasColumnName("expires_at");
+            entity.Property(e => e.CreatedAt).HasPrecision(0)
+                .HasDefaultValueSql("(SYSUTCDATETIME())").HasColumnName("created_at");
+            entity.Property(e => e.RevokedAt).HasPrecision(0).HasColumnName("revoked_at");
+        });
 
         modelBuilder.Entity<AuditLog>(entity =>
         {

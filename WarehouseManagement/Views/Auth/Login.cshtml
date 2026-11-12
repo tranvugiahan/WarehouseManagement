@@ -19,15 +19,17 @@
         <h2 class="title">Đăng nhập</h2>
         <p class="subtitle">Nhập tài khoản để truy cập kho hàng</p>
 
-        <form action="/" method="post">
+        <form action="@Url.Content("~/Auth/Login")" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" role="alert" class="login-error"></div>
             <div class="form-group">
-                <label class="form-label">Tên đăng nhập / Email</label>
-                <input type="text" class="form-input" placeholder="Tài khoản or email..." required />
+                <label class="form-label" for="usernameOrEmail">Tên đăng nhập / Email</label>
+                <input id="usernameOrEmail" name="usernameOrEmail" type="text" class="form-input" placeholder="Tài khoản hoặc email..." autocomplete="username" required />
             </div>
 
             <div class="form-group">
-                <label class="form-label">Mật khẩu</label>
-                <input type="password" class="form-input" placeholder="••••••••" required />
+                <label class="form-label" for="password">Mật khẩu</label>
+                <input id="password" name="password" type="password" class="form-input" placeholder="••••••••" autocomplete="current-password" required />
             </div>
 
             <button type="submit" class="btn-login">Đăng nhập</button>

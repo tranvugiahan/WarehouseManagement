@@ -83,3 +83,9 @@ body {
 .btn-login:hover {
     background-color: #1e293b;
 }
+
+.login-error {
+    color: #b91c1c;
+    font-size: 13px;
+    margin-bottom: 12px;
+}

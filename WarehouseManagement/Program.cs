@@ -1,4 +1,7 @@
 using System.Text;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +44,50 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         .IsActiveAsync(sessionId, userId))
                     context.Fail("Phiên đăng nhập đã hết hạn hoặc bị thu hồi.");
             }
+        };
+    })
+    .AddCookie("MvcCookie", options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = false;
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var principal = context.Principal;
+            var sessionId = principal?.FindFirstValue("sid");
+            var userIdText = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var refreshToken = principal?.FindFirstValue("refresh_token");
+            var accessExpiresText = principal?.FindFirstValue("access_expires_at");
+            var store = context.HttpContext.RequestServices.GetRequiredService<IRefreshSessionStore>();
+
+            if (string.IsNullOrEmpty(sessionId) || !int.TryParse(userIdText, out var userId) ||
+                string.IsNullOrEmpty(refreshToken) || !DateTime.TryParse(accessExpiresText, out var accessExpiresAt) ||
+                !await store.IsActiveAsync(sessionId, userId))
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync("MvcCookie");
+                return;
+            }
+
+            if (accessExpiresAt > DateTime.UtcNow)
+                return;
+
+            var sessions = context.HttpContext.RequestServices.GetRequiredService<RefreshSessionService>();
+            var refreshed = await sessions.RefreshAsync(refreshToken);
+            if (refreshed is null)
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync("MvcCookie");
+                return;
+            }
+
+            var identity = (ClaimsIdentity)principal!.Identity!;
+            identity.RemoveClaim(identity.FindFirst("refresh_token")!);
+            identity.RemoveClaim(identity.FindFirst("access_expires_at")!);
+            identity.AddClaim(new Claim("refresh_token", refreshed.RefreshToken));
+            identity.AddClaim(new Claim("access_expires_at", refreshed.ExpiresAt.ToString("O")));
+            context.Properties.ExpiresUtc = refreshed.RefreshExpiresAt;
+            context.ShouldRenew = true;
         };
     });
 builder.Services.AddAuthorization();

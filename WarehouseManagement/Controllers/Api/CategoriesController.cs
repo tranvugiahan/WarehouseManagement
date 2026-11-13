@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using WarehouseManagement.Models;
 using WarehouseManagement.Models.Requests;
@@ -6,6 +8,7 @@ using WarehouseManagement.Services;
 namespace WarehouseManagement.Controllers.Api;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/categories")]
 public class CategoriesController : ControllerBase
 {
@@ -37,6 +40,7 @@ public class CategoriesController : ControllerBase
 
     // POST /api/categories
     [HttpPost]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Create([FromBody] CreateCategoryRequest request)
     {
         var created = await _service.CreateAsync(new Category { Name = request.Name,  });
@@ -49,6 +53,7 @@ public class CategoriesController : ControllerBase
 
     // PUT /api/categories/1
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Update(
         int id, [FromBody] UpdateCategoryRequest request)
     {
@@ -62,6 +67,7 @@ public class CategoriesController : ControllerBase
 
     // DELETE /api/categories/1
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _service.DeactivateAsync(id);

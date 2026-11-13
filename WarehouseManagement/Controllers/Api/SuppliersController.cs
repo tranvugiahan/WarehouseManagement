@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using WarehouseManagement.Models;
 using WarehouseManagement.Models.Requests;
@@ -6,6 +8,7 @@ using WarehouseManagement.Services;
 namespace WarehouseManagement.Controllers.Api;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/suppliers")]
 public class SuppliersController : ControllerBase
 {
@@ -35,6 +38,7 @@ public class SuppliersController : ControllerBase
 
     // POST /api/suppliers
     [HttpPost]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Create([FromBody] CreateSupplierRequest request)
     {
         var created = await _service.CreateAsync(new Supplier { Name = request.Name, Phone = request.Phone, Email = request.Email, Address = request.Address, });
@@ -47,6 +51,7 @@ public class SuppliersController : ControllerBase
 
     // PUT /api/suppliers/1
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Update(
         int id, [FromBody] UpdateSupplierRequest request)
     {
@@ -60,6 +65,7 @@ public class SuppliersController : ControllerBase
 
     // DELETE /api/suppliers/1
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _service.DeactivateAsync(id);

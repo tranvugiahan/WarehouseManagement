@@ -45,7 +45,7 @@ public class AuthController(AuthService auth, LogoutService logout) : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> Logout()
     {
         var authentication = await HttpContext.AuthenticateAsync("MvcCookie");

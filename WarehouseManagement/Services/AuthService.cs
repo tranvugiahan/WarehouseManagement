@@ -6,7 +6,9 @@ namespace WarehouseManagement.Services;
 public interface IUserStore
 {
     Task<User?> FindAsync(string identifier);
+    Task<User?> FindActiveByIdAsync(int userId);
     Task RecordLoginAsync(User user);
+    Task UpdatePasswordAsync(User user);
 }
 
 public sealed record LoginResult(string AccessToken, DateTime ExpiresAt, int UserId, string FullName,
@@ -41,5 +43,31 @@ public sealed class AuthService(IUserStore users, IPasswordHasher<User> password
         await users.RecordLoginAsync(user);
         await transaction.CommitAsync();
         return result;
+    }
+
+    public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+    {
+        if (string.IsNullOrEmpty(currentPassword) || string.IsNullOrEmpty(newPassword))
+            return false;
+
+        var user = await users.FindActiveByIdAsync(userId);
+        if (user is null)
+            return false;
+
+        PasswordVerificationResult verification;
+        try
+        {
+            verification = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+        if (verification == PasswordVerificationResult.Failed)
+            return false;
+
+        user.PasswordHash = passwordHasher.HashPassword(user, newPassword);
+        await users.UpdatePasswordAsync(user);
+        return true;
     }
 }

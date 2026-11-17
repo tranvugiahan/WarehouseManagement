@@ -78,6 +78,8 @@ Migrations để dành; không chạy migration khởi tạo trên schema SQL hi
 
 `POST /api/auth/change-password` yêu cầu Bearer token còn hạn và vai trò `ADMIN`, `MANAGER` hoặc `EMPLOYEE`. Gửi JSON `{"currentPassword":"...","newPassword":"..."}` để đổi mật khẩu của chính tài khoản đang đăng nhập. Mật khẩu hiện tại phải đúng; mật khẩu mới được lưu dưới dạng hash. Thành công trả `204`, sai mật khẩu hiện tại trả `400`. Không cần thay đổi cấu trúc database.
 
+Trong Swagger UI, gọi `/api/auth/login`, sao chép riêng giá trị `accessToken` trong phản hồi rồi bấm **Authorize** và dán token vào ô Bearer (không thêm chữ `Bearer`). Swagger tự gửi token cho các API có biểu tượng khóa, gồm `/api/auth/change-password`; không cần dán lại cho từng API. Sau 15 phút, gọi `/api/auth/refresh` bằng `refreshToken` rồi nhập `accessToken` mới vào Authorize.
+
 Các API `/api/categories`, `/api/units`, `/api/suppliers` yêu cầu Bearer token cho cả GET. POST, PUT và DELETE chỉ cho phép `ADMIN` hoặc `MANAGER`; `EMPLOYEE` chỉ được đọc.
 
 Với database `warehouse_db` đã có bảng `users`, chạy duy nhất [warehouse_db_sqlserver.sql](warehouse_db_sqlserver.sql) để thêm bảng `refresh_sessions` nếu còn thiếu. Script có thể chạy lại, không xóa database, bảng hay dữ liệu. Bảng `revoked_tokens` cũ nếu đã tồn tại vẫn được giữ nguyên nhưng API hiện không dùng. Trong SSMS, mở file rồi Execute; hoặc chạy từ thư mục repo:

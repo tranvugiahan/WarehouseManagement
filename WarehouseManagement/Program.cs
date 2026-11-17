@@ -3,10 +3,12 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using WarehouseManagement.AppData.Repositories;
 using WarehouseManagement.Models;
 using WarehouseManagement.Services;
@@ -106,6 +108,14 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "API quản lý kho: danh mục, đơn vị tính và nhà cung cấp. DELETE là xóa mềm (Status = INACTIVE). Khi PUT, gửi Status là ACTIVE hoặc INACTIVE."
     });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Dán accessToken từ POST /api/auth/login. Không thêm tiền tố Bearer."
+    });
+    options.OperationFilter<BearerAuthOperationFilter>();
 });
 
 
@@ -161,3 +171,24 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+internal sealed class BearerAuthOperationFilter : IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        var metadata = context.ApiDescription.ActionDescriptor.EndpointMetadata;
+        if (metadata.OfType<IAllowAnonymous>().Any() || !metadata.OfType<IAuthorizeData>().Any())
+            return;
+
+        operation.Security =
+        [
+            new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                }] = Array.Empty<string>()
+            }
+        ];
+    }
+}

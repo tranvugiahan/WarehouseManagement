@@ -140,6 +140,69 @@ body {
   font-weight: 600;
 }
 
+.account-menu {
+  position: relative;
+  z-index: 10;
+  font-size: 14px;
+}
+
+.account-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.account-menu-trigger::-webkit-details-marker { display: none; }
+.account-menu-trigger:hover,
+.account-menu[open] .account-menu-trigger { background: #f1f5f9; }
+.account-menu-trigger:focus-visible,
+.account-menu-panel a:focus-visible,
+.account-menu-panel button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+.account-menu-chevron { color: #64748b; font-size: 11px; }
+.account-menu[open] .account-menu-chevron { transform: rotate(180deg); }
+
+.account-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 220px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.account-menu-panel a,
+.account-menu-panel button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #334155;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-menu-panel a:hover,
+.account-menu-panel button:hover { background: #f1f5f9; color: #0f172a; }
+.account-menu-panel i { width: 18px; text-align: center; }
+.account-menu-panel form { border-top: 1px solid #e2e8f0; margin-top: 4px; padding-top: 4px; }
+
+#profile-info,
+#change-password { scroll-margin-top: 24px; }
+
 /* 4. VÙNG CUỘN NỘI DUNG (NƠI RENDER BODY) */
 .app-content {
   flex: 1;
@@ -267,6 +330,23 @@ body {
 .form-select:focus, .form-input:focus {
   border-color: #0f172a;
 }
+
+.password-field { position: relative; width: 100%; }
+.password-field .form-input { width: 100%; padding-right: 48px; }
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+.password-toggle:hover { color: #0f172a; }
+.password-toggle:focus-visible { outline: 2px solid #2563eb; border-radius: 4px; }
 
 /* 7. BẢNG DỮ LIỆU (DATA TABLE) */
 .table-card {

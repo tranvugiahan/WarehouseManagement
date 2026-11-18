@@ -45,7 +45,7 @@
                     <span>Nhà cung cấp</span>
                 </a></li>
                 <li><a href="/ImportOrder/Index">
-                    <i class="fa-solid fa-arrow-down-to-bracket"></i>
+                    <i class="fa-solid fa-file-import"></i>
                     <span>Phiếu nhập</span>
                 </a></li>
                 <li><a href="/ExportOrder/Index">
@@ -68,13 +68,6 @@
             </ul>
         </div>
 
-        <div class="sidebar-footer">
-            <ul class="sidebar-menu" style="padding: 0;">
-                <li><a href="/Account/Profile"><i class="fa-solid fa-user-circle"></i> <span>Trang cá nhân</span></a></li>
-                <li><a href="/AuditLog/Index"><i class="fa-solid fa-clock-rotate-left"></i> <span>Audit Log</span></a></li>
-                <li><form action="@Url.Content("~/Auth/Logout")" method="post"><button type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Đăng xuất</span></button></form></li>
-            </ul>
-        </div>
     </aside>
 
     <!-- 2. VÙNG BÊN PHẢI -->
@@ -84,10 +77,20 @@
             <div class="header-breadcrumb">
                 <i class="fa-solid fa-house" style="font-size: 12px; margin-right: 6px;"></i> Quản lý Kho / <span>@ViewData["Title"]</span>
             </div>
-            <div class="header-user">
-                <span>@User.Identity?.Name <b>(@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)</b></span>
-                <div class="user-avatar">@User.Identity?.Name?.FirstOrDefault()</div>
-            </div>
+            <details class="account-menu" id="accountMenu">
+                <summary class="account-menu-trigger">
+                    <span>@User.Identity?.Name <b>(@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)</b></span>
+                    <span class="user-avatar" aria-hidden="true">@User.Identity?.Name?.FirstOrDefault()</span>
+                    <i class="fa-solid fa-chevron-down account-menu-chevron" aria-hidden="true"></i>
+                </summary>
+                <nav class="account-menu-panel" aria-label="Tài khoản">
+                    <a href="@Url.Content("~/Account/Profile#profile-info")"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>Thông tin cá nhân</a>
+                    <a href="@Url.Content("~/AuditLog/Index")"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>Audit Log</a>
+                    <form action="@Url.Content("~/Auth/Logout")" method="post">
+                        <button type="submit"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>Đăng xuất</button>
+                    </form>
+                </nav>
+            </details>
         </header>
 
         <!-- NỘI DUNG THAY ĐỔI CỦA TỪNG TRANG -->
@@ -98,6 +101,7 @@
 
     <!-- Nhúng Script hỗ trợ -->
     @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
     <script>
     // Tự động tìm xem đang ở link nào để gắn màu active
     const currentPath = window.location.pathname;
@@ -106,6 +110,16 @@
         const href = link.getAttribute('href');
         if (href === currentPath || (currentPath === '/' && href === '/Home/Index')) {
             link.classList.add('active');
+        }
+    });
+    const accountMenu = document.getElementById('accountMenu');
+    document.addEventListener('click', event => {
+        if (!accountMenu.contains(event.target)) accountMenu.open = false;
+    });
+    accountMenu.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            accountMenu.open = false;
+            accountMenu.querySelector('summary').focus();
         }
     });
     </script>

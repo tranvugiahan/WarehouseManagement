@@ -51,50 +51,52 @@
                 </tr>
             </thead>
             <tbody id="userTableBody">
-                <tr data-role="Admin" data-status="active">
+                <tr data-username="admin" data-fullname="Nguyễn Văn A" data-role="Admin" data-status="active">
                     <td class="font-mono"><strong>admin</strong></td>
                     <td class="font-medium">Nguyễn Văn A</td>
                     <td>admin@wms.com</td>
                     <td><span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:600;">Quản trị viên</span></td>
-                    <td><span class="status-badge status-active">Hoạt động</span></td>
+                    <td class="status-cell"><span class="status-badge status-active">Hoạt động</span></td>
                     <td style="color:#64748b;">10/01/2026</td>
-                    <td class="text-right">
+                    <td class="text-right action-cell">
                         <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
                     </td>
                 </tr>
-                <tr data-role="Manager" data-status="active">
+                <tr data-username="manager_kho" data-fullname="Trần Thị B" data-role="Manager" data-status="active">
                     <td class="font-mono"><strong>manager_kho</strong></td>
                     <td class="font-medium">Trần Thị B</td>
                     <td>manager@wms.com</td>
                     <td><span class="badge" style="background:#fef3c7; color:#b45309; font-weight:600;">Quản lý kho</span></td>
-                    <td><span class="status-badge status-active">Hoạt động</span></td>
+                    <td class="status-cell"><span class="status-badge status-active">Hoạt động</span></td>
                     <td style="color:#64748b;">12/01/2026</td>
-                    <td class="text-right">
+                    <td class="text-right action-cell">
                         <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
+                        <button class="btn-action delete" style="color:#dc2626;" title="Vô hiệu hóa tài khoản" onclick="openDeactivateModal(this)"><i class="fa-solid fa-user-slash"></i></button>
                     </td>
                 </tr>
-                <tr data-role="Staff" data-status="active">
+                <tr data-username="staff_nam" data-fullname="Lê Hoàng Nam" data-role="Staff" data-status="active">
                     <td class="font-mono"><strong>staff_nam</strong></td>
                     <td class="font-medium">Lê Hoàng Nam</td>
                     <td>nam.lh@wms.com</td>
                     <td><span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;">Nhân viên kho</span></td>
-                    <td><span class="status-badge status-active">Hoạt động</span></td>
+                    <td class="status-cell"><span class="status-badge status-active">Hoạt động</span></td>
                     <td style="color:#64748b;">15/02/2026</td>
-                    <td class="text-right">
+                    <td class="text-right action-cell">
                         <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
+                        <button class="btn-action delete" style="color:#dc2626;" title="Vô hiệu hóa tài khoản" onclick="openDeactivateModal(this)"><i class="fa-solid fa-user-slash"></i></button>
                     </td>
                 </tr>
-                <tr data-role="Staff" data-status="inactive">
+                <tr data-username="staff_tam" data-fullname="Võ Minh Tâm" data-role="Staff" data-status="inactive">
                     <td class="font-mono"><strong>staff_tam</strong></td>
                     <td class="font-medium">Võ Minh Tâm</td>
                     <td>tam.vm@wms.com</td>
                     <td><span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;">Nhân viên kho</span></td>
-                    <td><span class="status-badge status-inactive">Đã khóa</span></td>
+                    <td class="status-cell"><span class="status-badge status-inactive">Đã khóa</span></td>
                     <td style="color:#64748b;">20/02/2026</td>
-                    <td class="text-right">
+                    <td class="text-right action-cell">
                         <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button class="btn-action" title="Mở khóa"><i class="fa-solid fa-lock-open"></i></button>
                     </td>
@@ -172,34 +174,101 @@
     </div>
 </div>
 
+<!-- MODAL XÁC NHẬN VÔ HIỆU HÓA TÀI KHOẢN (FR2.3, UI-03, MỤC 8.1) -->
+<div id="deactivateUserModal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 460px;">
+        <div class="modal-header">
+            <h3 style="color: #dc2626; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Xác nhận vô hiệu hóa tài khoản
+            </h3>
+            <button class="modal-close" onclick="closeModal('deactivateUserModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom: 12px; color: #1e293b; line-height: 1.5;">
+                Bạn có chắc chắn muốn vô hiệu hóa tài khoản <strong id="deactivateFullName"></strong>
+                (<span class="font-mono" id="deactivateUsername" style="font-weight: 600;"></span>)?
+            </p>
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px; color: #991b1b; font-size: 0.9rem; line-height: 1.45;">
+                <i class="fa-solid fa-circle-info"></i> <strong>Lưu ý:</strong> Tài khoản bị vô hiệu hóa sẽ lập tức bị thu hồi phiên truy cập và <strong>không thể đăng nhập</strong> vào hệ thống cho đến khi được quản trị viên mở khóa lại.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('deactivateUserModal')">Hủy bỏ</button>
+            <button type="button" class="btn" style="background: #dc2626; color: #ffffff; border: none;" onclick="confirmDeactivateUser()">
+                <i class="fa-solid fa-user-slash"></i> Xác nhận vô hiệu hóa
+            </button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-<script>
-    function openModal(id) { document.getElementById(id).classList.add('show'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+    <script>
+        let targetUserRow = null;
 
-    function filterUsers() {
-        const keyword = document.getElementById('searchUserInput').value.toLowerCase();
-        const role = document.getElementById('userRoleFilter').value;
-        const status = document.getElementById('userStatusFilter').value;
-        const rows = document.querySelectorAll('#userTableBody tr');
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
-            const rowRole = row.getAttribute('data-role');
-            const rowStatus = row.getAttribute('data-status');
+        function openDeactivateModal(button) {
+            targetUserRow = button.closest('tr');
+            const username = targetUserRow.getAttribute('data-username');
+            const fullName = targetUserRow.getAttribute('data-fullname');
 
-            const matchText = text.includes(keyword);
-            const matchRole = !role || rowRole === role;
-            const matchStatus = !status || rowStatus === status;
+            document.getElementById('deactivateUsername').textContent = username;
+            document.getElementById('deactivateFullName').textContent = fullName;
+            openModal('deactivateUserModal');
+        }
 
-            row.style.display = (matchText && matchRole && matchStatus) ? '' : 'none';
-        });
-    }
+        function confirmDeactivateUser() {
+            if (!targetUserRow) return;
 
-    function handleSaveUser(e) {
-        e.preventDefault();
-        alert('Tạo tài khoản thành công!');
-        closeModal('createUserModal');
-    }
-</script>
+            // Cập nhật trạng thái dòng sang inactive
+            targetUserRow.setAttribute('data-status', 'inactive');
+
+            // Cập nhật badge trạng thái sang "Đã khóa"
+            const statusCell = targetUserRow.querySelector('.status-cell');
+            if (statusCell) {
+                statusCell.innerHTML = '<span class="status-badge status-inactive">Đã khóa</span>';
+            }
+
+            // Cập nhật lại nút thao tác tương ứng với trạng thái đã khóa
+            const actionCell = targetUserRow.querySelector('.action-cell');
+            if (actionCell) {
+                actionCell.innerHTML = `
+                    <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn-action" title="Mở khóa"><i class="fa-solid fa-lock-open"></i></button>
+                `;
+            }
+
+            const username = targetUserRow.getAttribute('data-username');
+            closeModal('deactivateUserModal');
+            targetUserRow = null;
+            filterUsers();
+            alert(`Đã vô hiệu hóa tài khoản "${username}" thành công.`);
+        }
+
+        function filterUsers() {
+            const keyword = document.getElementById('searchUserInput').value.toLowerCase();
+            const role = document.getElementById('userRoleFilter').value;
+            const status = document.getElementById('userStatusFilter').value;
+            const rows = document.querySelectorAll('#userTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const rowRole = row.getAttribute('data-role');
+                const rowStatus = row.getAttribute('data-status');
+
+                const matchText = text.includes(keyword);
+                const matchRole = !role || rowRole === role;
+                const matchStatus = !status || rowStatus === status;
+
+                row.style.display = (matchText && matchRole && matchStatus) ? '' : 'none';
+            });
+        }
+
+        function handleSaveUser(e) {
+            e.preventDefault();
+            alert('Tạo tài khoản thành công!');
+            closeModal('createUserModal');
+        }
+    </script>
 }

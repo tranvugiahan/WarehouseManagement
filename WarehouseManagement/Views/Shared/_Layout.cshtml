@@ -1,11 +1,17 @@
+@using System.Security.Claims
+@{
+    var userRole = User.FindFirst(ClaimTypes.Role)?.Value?.Trim().ToUpperInvariant() ?? string.Empty;
+    bool isAdmin = userRole == "ADMIN";
+    bool isManager = userRole == "MANAGER";
+    bool isAdminOrManager = isAdmin || isManager;
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - WMS Core</title>
-    
-   
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <!-- File CSS khung sườn hệ thống -->
@@ -13,61 +19,108 @@
 </head>
 <body>
 
-    <!-- 1. SIDEBAR CỐ ĐỊNH BÊN TRÁI -->
+    <!-- 1. SIDEBAR CỐ ĐỊNH BÊN TRÁI (HIỂN THỊ THEO QUYỀN - TASK-BL03-01) -->
     <aside class="app-sidebar">
         <div>
             <div class="sidebar-brand">
                 <i class="fa-solid fa-boxes-stacked" style="color: #0f172a;"></i>
                 <span>WMS CORE</span>
             </div>
-            
+
             <ul class="sidebar-menu">
+                <!-- Cả 3 vai trò: Admin, Manager, Employee -->
                 <li>
                     <a href="/Home/Index">
                         <i class="fa-solid fa-chart-pie"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li><a href="/User/Index">
-                    <i class="fa-solid fa-users-gear"></i> 
-                    <span>Quản lý tài khoản</span>
-                </a></li>
-                <li><a href="/Product/Index">
-                    <i class="fa-solid fa-box"></i> 
-                    <span>Sản phẩm</span>
-                </a></li>
-                <li><a href="/Category/Index">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>Nhóm hàng / Đơn vị</span>
-                </a></li>
-                <li><a href="/Supplier/Index">
-                    <i class="fa-solid fa-truck-field"></i>
-                    <span>Nhà cung cấp</span>
-                </a></li>
-                <li><a href="/ImportOrder/Index">
-                    <i class="fa-solid fa-file-import"></i>
-                    <span>Phiếu nhập</span>
-                </a></li>
-                <li><a href="/ExportOrder/Index">
-                    <i class="fa-solid fa-arrow-up-from-bracket"></i> 
-                    <span>Xuất kho</span>
-                </a></li>
-                <li><a href="/ExportOrder/Damaged">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Hủy / Hỏng</span>
-                </a></li>
-                <li><a href="/Inventory/Index">
-                    <i class="fa-solid fa-warehouse"></i> <span>Tồn kho</span>
-                </a></li>
-                <li><a href="/StockTake/Index"><i class="fa-solid fa-clipboard-check"></i> 
-                    <span>Kiểm kê</span></a></li>
-                <li><a href="/Report/Index">
-                    <i class="fa-solid fa-chart-line"></i> 
-                    <span>Báo cáo</span>
-                </a></li>
+
+                <!-- Chỉ Admin -->
+                @if (isAdmin)
+                {
+                    <li>
+                        <a href="/User/Index">
+                            <i class="fa-solid fa-users-gear"></i>
+                            <span>Quản lý tài khoản</span>
+                        </a>
+                    </li>
+                }
+
+                <!-- Admin & Manager -->
+                @if (isAdminOrManager)
+                {
+                    <li>
+                        <a href="/Product/Index">
+                            <i class="fa-solid fa-box"></i>
+                            <span>Sản phẩm</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Category/Index">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span>Nhóm hàng / Đơn vị</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Supplier/Index">
+                            <i class="fa-solid fa-truck-field"></i>
+                            <span>Nhà cung cấp</span>
+                        </a>
+                    </li>
+                }
+
+                <!-- Cả 3 vai trò: Admin, Manager, Employee -->
+                <li>
+                    <a href="/ImportOrder/Index">
+                        <i class="fa-solid fa-file-import"></i>
+                        <span>Phiếu nhập</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/ExportOrder/Index">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        <span>Xuất kho</span>
+                    </a>
+                </li>
+
+                <!-- Admin & Manager -->
+                @if (isAdminOrManager)
+                {
+                    <li>
+                        <a href="/ExportOrder/Damaged">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Hủy / Hỏng</span>
+                        </a>
+                    </li>
+                }
+
+                <!-- Cả 3 vai trò: Admin, Manager, Employee -->
+                <li>
+                    <a href="/Inventory/Index">
+                        <i class="fa-solid fa-warehouse"></i>
+                        <span>Tồn kho</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/StockTake/Index">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span>Kiểm kê</span>
+                    </a>
+                </li>
+
+                <!-- Admin & Manager -->
+                @if (isAdminOrManager)
+                {
+                    <li>
+                        <a href="/Report/Index">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Báo cáo</span>
+                        </a>
+                    </li>
+                }
             </ul>
         </div>
-
     </aside>
 
     <!-- 2. VÙNG BÊN PHẢI -->
@@ -79,13 +132,19 @@
             </div>
             <details class="account-menu" id="accountMenu">
                 <summary class="account-menu-trigger">
-                    <span>@User.Identity?.Name <b>(@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)</b></span>
+                    <span>@User.Identity?.Name <b>(@userRole)</b></span>
                     <span class="user-avatar" aria-hidden="true">@User.Identity?.Name?.FirstOrDefault()</span>
                     <i class="fa-solid fa-chevron-down account-menu-chevron" aria-hidden="true"></i>
                 </summary>
                 <nav class="account-menu-panel" aria-label="Tài khoản">
                     <a href="@Url.Content("~/Account/Profile#profile-info")"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>Thông tin cá nhân</a>
-                    <a href="@Url.Content("~/AuditLog/Index")"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>Audit Log</a>
+
+                    <!-- Chỉ Admin mới xem được Audit Log theo Ma trận 3.1 -->
+                    @if (isAdmin)
+                    {
+                        <a href="@Url.Content("~/AuditLog/Index")"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>Audit Log</a>
+                    }
+
                     <form action="@Url.Content("~/Auth/Logout")" method="post">
                         <button type="submit"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>Đăng xuất</button>
                     </form>
@@ -103,25 +162,25 @@
     @await RenderSectionAsync("Scripts", required: false)
     <script src="~/js/site.js" asp-append-version="true" defer></script>
     <script>
-    // Tự động tìm xem đang ở link nào để gắn màu active
-    const currentPath = window.location.pathname;
-    document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        link.classList.remove('active');
-        const href = link.getAttribute('href');
-        if (href === currentPath || (currentPath === '/' && href === '/Home/Index')) {
-            link.classList.add('active');
-        }
-    });
-    const accountMenu = document.getElementById('accountMenu');
-    document.addEventListener('click', event => {
-        if (!accountMenu.contains(event.target)) accountMenu.open = false;
-    });
-    accountMenu.addEventListener('keydown', event => {
-        if (event.key === 'Escape') {
-            accountMenu.open = false;
-            accountMenu.querySelector('summary').focus();
-        }
-    });
+        // Tự động tìm xem đang ở link nào để gắn màu active
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.classList.remove('active');
+            const href = link.getAttribute('href');
+            if (href === currentPath || (currentPath === '/' && href === '/Home/Index')) {
+                link.classList.add('active');
+            }
+        });
+        const accountMenu = document.getElementById('accountMenu');
+        document.addEventListener('click', event => {
+            if (!accountMenu.contains(event.target)) accountMenu.open = false;
+        });
+        accountMenu.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                accountMenu.open = false;
+                accountMenu.querySelector('summary').focus();
+            }
+        });
     </script>
 
 </body>

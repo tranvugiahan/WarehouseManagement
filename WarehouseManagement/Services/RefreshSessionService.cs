@@ -8,7 +8,7 @@ public interface IRefreshSessionStore
     Task CreateAsync(RefreshSession session);
     Task<RotatedSession?> RotateAsync(string tokenHash, string newTokenHash, DateTime expiresAt);
     Task RevokeAsync(string sessionId, int userId);
-    Task<bool> IsActiveAsync(string sessionId, int userId);
+    Task<bool> IsActiveAsync(string sessionId, int userId, string? role);
 }
 
 public sealed class RefreshSessionService(IRefreshSessionStore sessions, JwtTokenService jwt)

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WarehouseManagement.Controllers;
 
-[Authorize(AuthenticationSchemes = "MvcCookie")]
+[Authorize(AuthenticationSchemes = "MvcCookie", Roles = "ADMIN")]
 public class AuditLogController : Controller
 {
     public IActionResult Index() => View();

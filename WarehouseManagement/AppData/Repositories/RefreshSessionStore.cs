@@ -22,7 +22,7 @@ public sealed class RefreshSessionStore(WarehouseDbContext db) : IRefreshSession
 
         var user = await db.Users.AsNoTracking()
             .SingleOrDefaultAsync(item => item.Id == session.UserId && item.Status == "ACTIVE");
-        if (user is null)
+        if (user is null || user.Role is not ("ADMIN" or "MANAGER" or "EMPLOYEE"))
             return null;
 
         var updated = await db.RefreshSessions
@@ -48,8 +48,8 @@ public sealed class RefreshSessionStore(WarehouseDbContext db) : IRefreshSession
         }
     }
 
-    public Task<bool> IsActiveAsync(string sessionId, int userId) =>
+    public Task<bool> IsActiveAsync(string sessionId, int userId, string? role) =>
         db.RefreshSessions.AnyAsync(item => item.Id == sessionId && item.UserId == userId &&
             item.RevokedAt == null && item.ExpiresAt > DateTime.UtcNow &&
-            db.Users.Any(user => user.Id == userId && user.Status == "ACTIVE"));
+            db.Users.Any(user => user.Id == userId && user.Status == "ACTIVE" && user.Role == role));
 }

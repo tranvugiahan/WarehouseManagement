@@ -9,6 +9,10 @@ public interface IUserStore
     Task<User?> FindActiveByIdAsync(int userId);
     Task RecordLoginAsync(User user);
     Task UpdatePasswordAsync(User user);
+    Task<bool> CreateAsync(User user, int createdBy);
+    Task<User?> FindByIdAsync(int userId);
+    Task<bool> UpdateAccountAsync(User user, int updatedBy);
+    Task<DeactivateUserResult> DeactivateAsync(int userId, int deactivatedBy);
 }
 
 public sealed record LoginResult(string AccessToken, DateTime ExpiresAt, int UserId, string FullName,
@@ -23,7 +27,8 @@ public sealed class AuthService(IUserStore users, IPasswordHasher<User> password
             return null;
 
         var user = await users.FindAsync(identifier.Trim());
-        if (user is null || user.Status != "ACTIVE")
+        if (user is null || user.Status != "ACTIVE" ||
+            user.Role is not ("ADMIN" or "MANAGER" or "EMPLOYEE"))
             return null;
 
         PasswordVerificationResult verification;

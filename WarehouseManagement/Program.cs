@@ -39,11 +39,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnTokenValidated = async context =>
             {
                 var sessionId = context.Principal?.FindFirst("sid")?.Value;
+                var role = context.Principal?.FindFirstValue(ClaimTypes.Role);
                 var userIdText = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
                     ?? context.Principal?.FindFirst("sub")?.Value;
                 if (string.IsNullOrWhiteSpace(sessionId) || !int.TryParse(userIdText, out var userId) ||
                     !await context.HttpContext.RequestServices.GetRequiredService<IRefreshSessionStore>()
-                        .IsActiveAsync(sessionId, userId))
+                        .IsActiveAsync(sessionId, userId, role))
                     context.Fail("Phiên đăng nhập đã hết hạn hoặc bị thu hồi.");
             }
         };
@@ -58,13 +59,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             var principal = context.Principal;
             var sessionId = principal?.FindFirstValue("sid");
             var userIdText = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var role = principal?.FindFirstValue(ClaimTypes.Role);
             var refreshToken = principal?.FindFirstValue("refresh_token");
             var accessExpiresText = principal?.FindFirstValue("access_expires_at");
             var store = context.HttpContext.RequestServices.GetRequiredService<IRefreshSessionStore>();
 
             if (string.IsNullOrEmpty(sessionId) || !int.TryParse(userIdText, out var userId) ||
                 string.IsNullOrEmpty(refreshToken) || !DateTime.TryParse(accessExpiresText, out var accessExpiresAt) ||
-                !await store.IsActiveAsync(sessionId, userId))
+                !await store.IsActiveAsync(sessionId, userId, role))
             {
                 context.RejectPrincipal();
                 await context.HttpContext.SignOutAsync("MvcCookie");
@@ -91,11 +93,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             context.Properties.ExpiresUtc = refreshed.RefreshExpiresAt;
             context.ShouldRenew = true;
         };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
     });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserStore, UserStore>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserAccountService>();
 builder.Services.AddScoped<IRefreshSessionStore, RefreshSessionStore>();
 builder.Services.AddScoped<RefreshSessionService>();
 builder.Services.AddScoped<LogoutService>();
@@ -106,7 +114,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "WarehouseManagement API",
         Version = "v1",
-        Description = "API quản lý kho: danh mục, đơn vị tính và nhà cung cấp. DELETE là xóa mềm (Status = INACTIVE). Khi PUT, gửi Status là ACTIVE hoặc INACTIVE."
+        Description = "API quản lý kho. Đăng nhập lấy accessToken, dùng Authorize cho các API có khóa. 401: chưa đăng nhập hoặc phiên không hợp lệ; 403: đã đăng nhập nhưng không đủ quyền. GET danh mục/đơn vị/NCC cho các vai trò; thao tác ghi chỉ dành cho Admin/Manager. DELETE là xóa mềm (Status = INACTIVE)."
     });
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -190,5 +198,18 @@ internal sealed class BearerAuthOperationFilter : IOperationFilter
                 }] = Array.Empty<string>()
             }
         ];
+
+        var roles = metadata.OfType<IAuthorizeData>()
+            .SelectMany(item => (item.Roles ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var requiredRole = roles.Length == 0 ? "người dùng đã đăng nhập" : string.Join(", ", roles);
+        operation.Description = string.IsNullOrWhiteSpace(operation.Description)
+            ? $"Quyền truy cập: {requiredRole}."
+            : $"{operation.Description}\n\nQuyền truy cập: {requiredRole}.";
+        if (!operation.Responses.ContainsKey("401"))
+            operation.Responses.Add("401", new OpenApiResponse { Description = "Chưa đăng nhập hoặc phiên không hợp lệ." });
+        if (!operation.Responses.ContainsKey("403"))
+            operation.Responses.Add("403", new OpenApiResponse { Description = "Không đủ quyền truy cập." });
     }
 }

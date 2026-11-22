@@ -16,3 +16,27 @@ document.querySelectorAll('.password-toggle').forEach(button => {
         button.querySelector('i').classList.toggle('fa-eye-slash', visible);
     });
 });
+
+// Tự động gắn class active cho menu Sidebar
+const currentPath = window.location.pathname;
+document.querySelectorAll('.sidebar-menu a').forEach(link => {
+    link.classList.remove('active');
+    const href = link.getAttribute('href');
+    if (href === currentPath || (currentPath === '/' && href === '/Home/Index')) {
+        link.classList.add('active');
+    }
+});
+
+// Đóng/mở menu tài khoản ở Header
+const accountMenu = document.getElementById('accountMenu');
+if (accountMenu) {
+    document.addEventListener('click', event => {
+        if (!accountMenu.contains(event.target)) accountMenu.open = false;
+    });
+    accountMenu.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            accountMenu.open = false;
+            accountMenu.querySelector('summary').focus();
+        }
+    });
+}

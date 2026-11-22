@@ -1,0 +1,51 @@
+﻿<div id="assignRoleModal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3 style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-user-shield" style="color: #2563eb;"></i> Gán vai trò tài khoản
+            </h3>
+            <button class="modal-close" onclick="closeModal('assignRoleModal')">&times;</button>
+        </div>
+        <form onsubmit="handleAssignRole(event)">
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Tài khoản được phân quyền</label>
+                    <select id="assignAccountSelect" class="form-select" onchange="onAssignAccountChange()"></select>
+                </div>
+
+                <label class="form-label" style="margin-bottom: 8px; display: block;">Chọn vai trò áp dụng <span class="required">*</span></label>
+
+                <label class="role-option-card" id="roleCard-ADMIN" onclick="selectRoleOption('ADMIN')">
+                    <input type="radio" name="assignRoleRadio" value="ADMIN" style="margin-top: 4px;" />
+                    <div>
+                        <div style="font-weight: 600; color: #b91c1c;">Admin (Quản trị viên hệ thống)</div>
+                        <div style="font-size: 0.85rem; color: #475569; margin-top: 2px;">Toàn quyền quản lý tài khoản, cấu hình danh mục, duyệt phiếu và xem Audit Log.</div>
+                    </div>
+                </label>
+
+                <label class="role-option-card" id="roleCard-MANAGER" onclick="selectRoleOption('MANAGER')">
+                    <input type="radio" name="assignRoleRadio" value="MANAGER" style="margin-top: 4px;" />
+                    <div>
+                        <div style="font-weight: 600; color: #b45309;">Manager (Quản lý kho)</div>
+                        <div style="font-size: 0.85rem; color: #475569; margin-top: 2px;">Quản lý sản phẩm, nhà cung cấp, duyệt phiếu nhập/xuất/hủy, kiểm kê và xem báo cáo.</div>
+                    </div>
+                </label>
+
+                <label class="role-option-card" id="roleCard-EMPLOYEE" onclick="selectRoleOption('EMPLOYEE')">
+                    <input type="radio" name="assignRoleRadio" value="EMPLOYEE" style="margin-top: 4px;" />
+                    <div>
+                        <div style="font-weight: 600; color: #0369a1;">Employee (Nhân viên kho)</div>
+                        <div style="font-size: 0.85rem; color: #475569; margin-top: 2px;">Lập phiếu nhập/xuất kho, tra cứu tồn kho và thực hiện kiểm kê hàng hóa.</div>
+                    </div>
+                </label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('assignRoleModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-check"></i> Lưu phân quyền
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

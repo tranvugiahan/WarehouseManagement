@@ -9,7 +9,6 @@
     <Folder Include="Services\" />
     <Folder Include="Areas\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Views\Shared\" />
     <Folder Include="Views\Home\" />
     <Folder Include="Components\" />
     <Folder Include="Views\Shared\Components\" />

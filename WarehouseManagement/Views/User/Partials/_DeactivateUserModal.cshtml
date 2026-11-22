@@ -1,0 +1,25 @@
+﻿<div id="deactivateUserModal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 460px;">
+        <div class="modal-header">
+            <h3 style="color: #dc2626; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Xác nhận vô hiệu hóa tài khoản
+            </h3>
+            <button class="modal-close" onclick="closeModal('deactivateUserModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom: 12px; color: #1e293b; line-height: 1.5;">
+                Bạn có chắc chắn muốn vô hiệu hóa tài khoản <strong id="deactivateFullName"></strong>
+                (<span class="font-mono" id="deactivateUsername" style="font-weight: 600;"></span>)?
+            </p>
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px; color: #991b1b; font-size: 0.9rem; line-height: 1.45;">
+                <i class="fa-solid fa-circle-info"></i> <strong>Lưu ý:</strong> Tài khoản bị vô hiệu hóa sẽ lập tức bị thu hồi phiên truy cập và <strong>không thể đăng nhập</strong> vào hệ thống cho đến khi được quản trị viên mở khóa lại.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('deactivateUserModal')">Hủy bỏ</button>
+            <button type="button" class="btn" style="background: #dc2626; color: #ffffff; border: none;" onclick="confirmDeactivateUser()">
+                <i class="fa-solid fa-user-slash"></i> Xác nhận vô hiệu hóa
+            </button>
+        </div>
+    </div>
+</div>

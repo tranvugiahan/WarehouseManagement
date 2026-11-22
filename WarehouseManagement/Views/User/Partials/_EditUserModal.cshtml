@@ -1,0 +1,45 @@
+﻿<div id="editUserModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Cập nhật thông tin tài khoản</h3>
+            <button class="modal-close" onclick="closeModal('editUserModal')">&times;</button>
+        </div>
+        <form id="editUserForm" novalidate onsubmit="handleUpdateUser(event)">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input type="text" id="editUsername" class="form-input" readonly style="background-color: #f1f5f9; color: #64748b; cursor: not-allowed;" />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Họ và tên <span class="required">*</span></label>
+                        <input type="text" id="editFullName" class="form-input" placeholder="Nhập họ và tên" oninput="validateEditField('editFullName')" />
+                        <span class="validation-error" id="err-editFullName"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" id="editEmail" class="form-input" placeholder="email@wms.com" oninput="validateEditField('editEmail')" />
+                        <span class="validation-error" id="err-editEmail"></span>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Vai trò (Phân quyền) <span class="required">*</span></label>
+                        <select id="editRole" class="form-select" onchange="validateEditField('editRole')">
+                            <option value="EMPLOYEE">Nhân viên kho (EMPLOYEE)</option>
+                            <option value="MANAGER">Quản lý kho (MANAGER)</option>
+                            <option value="ADMIN">Quản trị viên (ADMIN)</option>
+                        </select>
+                        <span class="validation-error" id="err-editRole"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editUserModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Cập nhật thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>

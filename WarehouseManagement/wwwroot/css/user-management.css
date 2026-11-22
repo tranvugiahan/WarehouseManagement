@@ -1,0 +1,40 @@
+﻿.form-input.is-invalid,
+.form-select.is-invalid {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2;
+}
+
+.validation-error {
+    display: none;
+    color: #dc2626;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+    .validation-error.show {
+        display: block;
+    }
+
+.role-option-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-bottom: 10px;
+}
+
+    .role-option-card:hover {
+        border-color: #94a3b8;
+        background-color: #f8fafc;
+    }
+
+    .role-option-card.selected {
+        border-color: #2563eb;
+        background-color: #eff6ff;
+    }
+

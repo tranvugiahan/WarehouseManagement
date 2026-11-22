@@ -1,0 +1,55 @@
+﻿<div id="createUserModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Thêm tài khoản mới</h3>
+            <button class="modal-close" onclick="closeModal('createUserModal')">&times;</button>
+        </div>
+        <form id="createUserForm" novalidate onsubmit="handleCreateUser(event)">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Tên đăng nhập <span class="required">*</span></label>
+                        <input type="text" id="createUsername" class="form-input" placeholder="VD: staff_kho1" oninput="validateCreateField('createUsername')" />
+                        <span class="validation-error" id="err-createUsername"></span>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Mật khẩu ban đầu <span class="required">*</span></label>
+                        <input type="password" id="createPassword" class="form-input" placeholder="Tối thiểu 6 ký tự" oninput="validateCreateField('createPassword')" />
+                        <span class="validation-error" id="err-createPassword"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Họ và tên <span class="required">*</span></label>
+                        <input type="text" id="createFullName" class="form-input" placeholder="Nguyễn Văn..." oninput="validateCreateField('createFullName')" />
+                        <span class="validation-error" id="err-createFullName"></span>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" id="createEmail" class="form-input" placeholder="email@wms.com" oninput="validateCreateField('createEmail')" />
+                        <span class="validation-error" id="err-createEmail"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Vai trò (Phân quyền) <span class="required">*</span></label>
+                        <select id="createRole" class="form-select" onchange="validateCreateField('createRole')">
+                            <option value="">-- Chọn vai trò --</option>
+                            <option value="EMPLOYEE">Nhân viên kho (EMPLOYEE)</option>
+                            <option value="MANAGER">Quản lý kho (MANAGER)</option>
+                            <option value="ADMIN">Quản trị viên (ADMIN)</option>
+                        </select>
+                        <span class="validation-error" id="err-createRole"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createUserModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu tài khoản</button>
+            </div>
+        </form>
+    </div>
+</div>

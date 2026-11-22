@@ -48,8 +48,23 @@ public sealed class UsersController(UserAccountService accounts) : ControllerBas
         {
             UpdateUserResult.NotFound => NotFound(),
             UpdateUserResult.Conflict => Conflict(new { error = "Username hoặc email đã tồn tại." }),
+            UpdateUserResult.SelfPasswordDenied => Conflict(new { error = "Hãy đổi mật khẩu của bạn ở trang cá nhân." }),
             _ => NoContent()
         };
+    }
+
+    [HttpPut("{id:int}/activate")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Activate(int id)
+    {
+        var adminIdText = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        if (!int.TryParse(adminIdText, out var adminId))
+            return Unauthorized();
+
+        var result = await accounts.ActivateAsync(id, adminId);
+        Response.Headers.CacheControl = "no-store";
+        return result == ActivateUserResult.NotFound ? NotFound() : NoContent();
     }
 
     [HttpDelete("{id:int}")]
@@ -68,6 +83,27 @@ public sealed class UsersController(UserAccountService accounts) : ControllerBas
         {
             DeactivateUserResult.NotFound => NotFound(),
             DeactivateUserResult.SelfDenied => Conflict(new { error = "Không thể vô hiệu hóa tài khoản đang sử dụng." }),
+            _ => NoContent()
+        };
+    }
+
+    [HttpPost("{id:int}/reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ResetPassword(int id, ResetUserPasswordRequest request)
+    {
+        var adminIdText = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        if (!int.TryParse(adminIdText, out var adminId))
+            return Unauthorized();
+
+        var result = await accounts.ResetPasswordAsync(id, request.NewPassword, adminId);
+        Response.Headers.CacheControl = "no-store";
+        return result switch
+        {
+            ResetPasswordResult.NotFound => NotFound(),
+            ResetPasswordResult.SelfDenied => Conflict(new { error = "Hãy đổi mật khẩu của bạn ở trang cá nhân." }),
             _ => NoContent()
         };
     }

@@ -1,0 +1,29 @@
+﻿@{
+    var userRole = (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                    ?? Context.Request.Cookies["UserRole"]
+                    ?? "EMPLOYEE").ToUpperInvariant();
+    var isAdmin = userRole == "ADMIN";
+}
+
+<header class="app-header">
+    <div class="header-breadcrumb">
+        <i class="fa-solid fa-house" style="font-size: 12px; margin-right: 6px;"></i> Quản lý Kho / <span>@ViewData["Title"]</span>
+    </div>
+    <details class="account-menu" id="accountMenu">
+        <summary class="account-menu-trigger">
+            <span>@User.Identity?.Name <b>(@userRole)</b></span>
+            <span class="user-avatar" aria-hidden="true">@User.Identity?.Name?.FirstOrDefault()</span>
+            <i class="fa-solid fa-chevron-down account-menu-chevron" aria-hidden="true"></i>
+        </summary>
+        <nav class="account-menu-panel" aria-label="Tài khoản">
+            <a href="@Url.Content("~/Account/Profile#profile-info")"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>Thông tin cá nhân</a>
+            @if (isAdmin)
+            {
+                <a href="@Url.Content("~/AuditLog/Index")"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>Audit Log</a>
+            }
+            <form action="@Url.Content("~/Auth/Logout")" method="post">
+                <button type="submit"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>Đăng xuất</button>
+            </form>
+        </nav>
+    </details>
+</header>

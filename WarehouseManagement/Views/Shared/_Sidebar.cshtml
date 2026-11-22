@@ -1,0 +1,103 @@
+﻿@{
+    var userRole = (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                    ?? Context.Request.Cookies["UserRole"]
+                    ?? "EMPLOYEE").ToUpperInvariant();
+    var isAdmin = userRole == "ADMIN";
+    var isAdminOrManager = userRole == "ADMIN" || userRole == "MANAGER";
+}
+
+<aside class="app-sidebar">
+    <div>
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-boxes-stacked" style="color: #0f172a;"></i>
+            <span>WMS CORE</span>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a href="/Home/Index">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            @if (isAdmin)
+            {
+                <li>
+                    <a href="/User/Index">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span>Quản lý tài khoản</span>
+                    </a>
+                </li>
+            }
+
+            @if (isAdminOrManager)
+            {
+                <li>
+                    <a href="/Product/Index">
+                        <i class="fa-solid fa-box"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Category/Index">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>Nhóm hàng / Đơn vị</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Supplier/Index">
+                        <i class="fa-solid fa-truck-field"></i>
+                        <span>Nhà cung cấp</span>
+                    </a>
+                </li>
+            }
+
+            <li>
+                <a href="/ImportOrder/Index">
+                    <i class="fa-solid fa-file-import"></i>
+                    <span>Phiếu nhập</span>
+                </a>
+            </li>
+            <li>
+                <a href="/ExportOrder/Index">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                    <span>Xuất kho</span>
+                </a>
+            </li>
+
+            @if (isAdminOrManager)
+            {
+                <li>
+                    <a href="/ExportOrder/Damaged">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Hủy / Hỏng</span>
+                    </a>
+                </li>
+            }
+
+            <li>
+                <a href="/Inventory/Index">
+                    <i class="fa-solid fa-warehouse"></i>
+                    <span>Tồn kho</span>
+                </a>
+            </li>
+            <li>
+                <a href="/StockTake/Index">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>Kiểm kê</span>
+                </a>
+            </li>
+
+            @if (isAdminOrManager)
+            {
+                <li>
+                    <a href="/Report/Index">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Báo cáo</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+</aside>

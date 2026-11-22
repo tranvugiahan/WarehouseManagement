@@ -16,6 +16,7 @@ using WarehouseManagement.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddAntiforgery(options => options.HeaderName = "RequestVerificationToken");
 builder.Services.AddProblemDetails();
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Chưa cấu hình Jwt:Key trong User Secrets hoặc biến môi trường.");

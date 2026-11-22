@@ -36,4 +36,13 @@ public sealed class UpdateUserRequest
 
     [Required, RegularExpression("^(ADMIN|MANAGER|EMPLOYEE)$", ErrorMessage = "Role phải là ADMIN, MANAGER hoặc EMPLOYEE.")]
     public string Role { get; set; } = string.Empty;
+
+    [MinLength(6), StringLength(128), RegularExpression(@".*\S.*", ErrorMessage = "Mật khẩu không thể chỉ có khoảng trắng.")]
+    public string? NewPassword { get; set; }
+}
+
+public sealed class ResetUserPasswordRequest
+{
+    [Required, MinLength(6), StringLength(128), RegularExpression(@".*\S.*", ErrorMessage = "Mật khẩu không thể chỉ có khoảng trắng.")]
+    public string NewPassword { get; set; } = string.Empty;
 }

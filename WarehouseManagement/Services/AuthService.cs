@@ -5,14 +5,17 @@ namespace WarehouseManagement.Services;
 
 public interface IUserStore
 {
+    Task<IReadOnlyList<User>> ListAsync();
     Task<User?> FindAsync(string identifier);
     Task<User?> FindActiveByIdAsync(int userId);
     Task RecordLoginAsync(User user);
     Task UpdatePasswordAsync(User user);
     Task<bool> CreateAsync(User user, int createdBy);
     Task<User?> FindByIdAsync(int userId);
-    Task<bool> UpdateAccountAsync(User user, int updatedBy);
+    Task<bool> UpdateAccountAsync(User user, int updatedBy, bool passwordChanged);
+    Task ResetPasswordAsync(User user, int resetBy);
     Task<DeactivateUserResult> DeactivateAsync(int userId, int deactivatedBy);
+    Task<ActivateUserResult> ActivateAsync(int userId, int activatedBy);
 }
 
 public sealed record LoginResult(string AccessToken, DateTime ExpiresAt, int UserId, string FullName,

@@ -1,6 +1,146 @@
 @{
-    ViewData["Title"] = "Trang chủ";
+    ViewData["Title"] = "Dashboard Tổng quan";
 }
-<h1>Hệ thống quản lý kho</h1>
-<p class="lead">Theo dõi nhập kho, xuất kho và tồn kho.</p>
 
+<!-- TIÊU ĐỀ TRANG -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Tổng quan Kho hàng</h1>
+        <p class="page-subtitle">Thống kê chỉ số hoạt động, tồn kho và cảnh báo theo thời gian thực</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <a href="/ImportOrder/Index" class="btn btn-secondary"><i class="fa-solid fa-arrow-down-to-bracket"></i> Nhập kho</a>
+        <a href="/ExportOrder/Index" class="btn btn-primary"><i class="fa-solid fa-arrow-up-from-bracket"></i> Xuất kho</a>
+    </div>
+</div>
+
+<!-- 4 THẺ KPI CHỈ SỐ -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon blue"><i class="fa-solid fa-boxes-stacked"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">148</span>
+            <span class="kpi-label">Tổng mặt hàng</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon green"><i class="fa-solid fa-coins"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">1,450,800,000 ₫</span>
+            <span class="kpi-label">Tổng giá trị tồn kho</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">6</span>
+            <span class="kpi-label">Mặt hàng sắp hết</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon rose"><i class="fa-solid fa-calendar-xmark"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-value">3</span>
+            <span class="kpi-label">Hàng sắp hết hạn (30 ngày)</span>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- CỘT TRÁI: HOẠT ĐỘNG NHẬP XUẤT MỚI NHẤT -->
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px; color:#64748b;"></i> Hoạt động Nhập / Xuất gần đây</h3>
+            <a href="/ImportOrder/Index" style="font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 500;">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>MÃ PHIẾU</th>
+                        <th>LOẠI</th>
+                        <th>ĐỐI TÁC / NƠI ĐẾN</th>
+                        <th>TỔNG TIỀN</th>
+                        <th>TRẠNG THÁI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-mono"><strong>PN-2026-004</strong></td>
+                        <td><span class="badge" style="background:#eff6ff; color:#2563eb;"><i class="fa-solid fa-arrow-down"></i> Nhập</span></td>
+                        <td>Coca-Cola VN</td>
+                        <td>42,500,000 ₫</td>
+                        <td><span class="status-badge status-completed">Đã nhập</span></td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>PX-2026-012</strong></td>
+                        <td><span class="badge" style="background:#fdf2f8; color:#db2777;"><i class="fa-solid fa-arrow-up"></i> Xuất</span></td>
+                        <td>Chi nhánh Quận 1</td>
+                        <td>18,200,000 ₫</td>
+                        <td><span class="status-badge status-completed">Đã xuất</span></td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>PN-2026-005</strong></td>
+                        <td><span class="badge" style="background:#eff6ff; color:#2563eb;"><i class="fa-solid fa-arrow-down"></i> Nhập</span></td>
+                        <td>Acecook VN</td>
+                        <td>35,000,000 ₫</td>
+                        <td><span class="status-badge status-pending">Chờ duyệt</span></td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono"><strong>PH-2026-001</strong></td>
+                        <td><span class="badge" style="background:#fef2f2; color:#dc2626;"><i class="fa-solid fa-ban"></i> Hủy</span></td>
+                        <td>Kho bảo quản A</td>
+                        <td>1,250,000 ₫</td>
+                        <td><span class="status-badge status-completed">Đã hủy</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CỘT PHẢI: CẢNH BÁO TỒN KHO & HẠN DÙNG -->
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3><i class="fa-solid fa-bell" style="margin-right:8px; color:#f59e0b;"></i> Cảnh báo Tồn kho & Hạn sử dụng</h3>
+            <a href="/Inventory/Index" style="font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 500;">Kiểm tra tồn <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>SẢN PHẨM</th>
+                        <th>TỒN HIỆN TẠI</th>
+                        <th>MỨC TỐI THIỂU</th>
+                        <th>CẢNH BÁO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-medium">Mì Hảo Hảo Chua Cay</td>
+                        <td><span class="stock-badge low-stock">18 Thùng</span></td>
+                        <td>50 Thùng</td>
+                        <td><span style="color:#d97706; font-size:12px; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Sắp hết</span></td>
+                    </tr>
+                    <tr>
+                        <td class="font-medium">Bánh Chocopie 12 Cái</td>
+                        <td><span class="stock-badge out-stock">0 Hộp</span></td>
+                        <td>30 Hộp</td>
+                        <td><span style="color:#dc2626; font-size:12px; font-weight:600;"><i class="fa-solid fa-circle-exclamation"></i> Hết hàng</span></td>
+                    </tr>
+                    <tr>
+                        <td class="font-medium">Sữa Tươi Tiệt Trùng 1L</td>
+                        <td><span class="stock-badge in-stock">120 Hộp</span></td>
+                        <td>50 Hộp</td>
+                        <td><span style="color:#e11d48; font-size:12px; font-weight:600;"><i class="fa-solid fa-hourglass-half"></i> HSD 14 ngày</span></td>
+                    </tr>
+                    <tr>
+                        <td class="font-medium">Nước Tương Maggi 300ml</td>
+                        <td><span class="stock-badge low-stock">8 Chai</span></td>
+                        <td>25 Chai</td>
+                        <td><span style="color:#d97706; font-size:12px; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Sắp hết</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

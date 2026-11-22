@@ -16,7 +16,7 @@ dotnet run --project WarehouseManagement --launch-profile http
 
 - Trang MVC: http://localhost:8080/
 - Swagger UI (Development): http://localhost:8080/swagger hoặc https://localhost:8443/swagger khi chạy profile https.
-- Visual Studio mở Swagger khi Run. Chọn endpoint → Try it out → nhập ID/JSON → Execute.
+- Visual Studio mở trang Login khi Run. Swagger vẫn ở `/swagger` để thử API.
 - OpenAPI JSON: /swagger/v1/swagger.json. Swagger tự đọc các API controller và request DTO.
 - API kiểm tra ứng dụng: GET http://localhost:8080/api/health
 - Kết quả API: HTTP 200, JSON `{"status":"ok"}`.
@@ -76,13 +76,19 @@ Migrations để dành; không chạy migration khởi tạo trên schema SQL hi
 
 `POST /api/auth/logout` yêu cầu Bearer token còn hạn, không cần body và trả `204`. Backend thu hồi phiên hiện tại trong `refresh_sessions`; mọi access token và refresh token của phiên này sẽ nhận `401`. Mỗi request dùng Bearer token đều kiểm tra `sid` và trạng thái phiên trong database. JWT cũ không có `sid` sẽ không còn dùng được sau khi cập nhật ứng dụng.
 
+`POST /api/auth/change-password` yêu cầu Bearer token còn hạn và vai trò `ADMIN`, `MANAGER` hoặc `EMPLOYEE`. Gửi JSON `{"currentPassword":"...","newPassword":"..."}` để đổi mật khẩu của chính tài khoản đang đăng nhập. Mật khẩu hiện tại phải đúng; mật khẩu mới được lưu dưới dạng hash. Thành công trả `204`, sai mật khẩu hiện tại trả `400`. Không cần thay đổi cấu trúc database.
+
+Trong Swagger UI, gọi `/api/auth/login`, sao chép riêng giá trị `accessToken` trong phản hồi rồi bấm **Authorize** và dán token vào ô Bearer (không thêm chữ `Bearer`). Swagger tự gửi token cho các API có biểu tượng khóa, gồm `/api/auth/change-password`; không cần dán lại cho từng API. Sau 15 phút, gọi `/api/auth/refresh` bằng `refreshToken` rồi nhập `accessToken` mới vào Authorize.
+
+Các API `/api/categories`, `/api/units`, `/api/suppliers` yêu cầu Bearer token cho cả GET. POST, PUT và DELETE chỉ cho phép `ADMIN` hoặc `MANAGER`; `EMPLOYEE` chỉ được đọc.
+
 Với database `warehouse_db` đã có bảng `users`, chạy duy nhất [warehouse_db_sqlserver.sql](warehouse_db_sqlserver.sql) để thêm bảng `refresh_sessions` nếu còn thiếu. Script có thể chạy lại, không xóa database, bảng hay dữ liệu. Bảng `revoked_tokens` cũ nếu đã tồn tại vẫn được giữ nguyên nhưng API hiện không dùng. Trong SSMS, mở file rồi Execute; hoặc chạy từ thư mục repo:
 
 ```powershell
 sqlcmd -S . -E -b -i warehouse_db_sqlserver.sql
 ```
 
-Thay `.` bằng tên SQL Server của thành viên nếu khác; `-E` dùng Windows Authentication. Chưa có frontend hoặc đổi mật khẩu trong phạm vi này.
+Thay `.` bằng tên SQL Server của thành viên nếu khác; `-E` dùng Windows Authentication.
 
 JWT có hạn 15 phút. Cấu hình khóa ký bí mật (ít nhất 32 byte) bằng User Secrets hoặc biến môi trường `Jwt__Key`; không ghi khóa vào `appsettings.json`:
 
@@ -90,7 +96,7 @@ JWT có hạn 15 phút. Cấu hình khóa ký bí mật (ít nhất 32 byte) b�
 dotnet user-secrets set "Jwt:Key" "YOUR_RANDOM_SECRET_AT_LEAST_32_BYTES" --project WarehouseManagement
 ```
 
-Mật khẩu trong `users.password_hash` phải là hash do `Microsoft.AspNetCore.Identity.PasswordHasher<User>` tạo. Hash của các tài khoản mẫu trong schema gốc chỉ là placeholder và không thể đăng nhập. API chưa bảo vệ các endpoint danh mục hiện có bằng role; việc đó thuộc phần phân quyền tiếp theo.
+Mật khẩu trong `users.password_hash` phải là hash do `Microsoft.AspNetCore.Identity.PasswordHasher<User>` tạo. Hash của các tài khoản mẫu trong schema gốc chỉ là placeholder và không thể đăng nhập. Trang MVC dùng cookie phiên: đăng nhập tại `/Auth/Login`, sau đó vào Dashboard; đăng xuất sẽ thu hồi phiên và quay về Login.
 
 ## Database và thông tin kết nối
 

@@ -1,0 +1,123 @@
+@{
+    ViewData["Title"] = "Nhật ký Hệ thống (Audit Log)";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Nhật ký Hệ thống (Audit Log)</h1>
+        <p class="page-subtitle">Ghi nhận toàn bộ thao tác, thay đổi dữ liệu và lịch sử truy cập của người dùng</p>
+    </div>
+    <button class="btn btn-secondary" onclick="alert('Đang tải file log hệ thống...')">
+        <i class="fa-solid fa-file-arrow-down"></i> Xuất File Log
+    </button>
+</div>
+
+<!-- THANH TÌM KIẾM & BỘ LỌC -->
+<div class="card toolbar-card">
+    <div class="toolbar">
+        <div class="search-box">
+            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="searchLogInput" placeholder="Tìm theo người thực hiện, đối tượng, IP..." onkeyup="filterAuditLogs()" />
+        </div>
+        <div class="filters">
+            <select id="logActionFilter" onchange="filterAuditLogs()" class="form-select">
+                <option value="">Tất cả hành động</option>
+                <option value="LOGIN">Đăng nhập</option>
+                <option value="CREATE">Tạo mới (Thêm)</option>
+                <option value="UPDATE">Cập nhật (Sửa)</option>
+                <option value="APPROVE">Phê duyệt</option>
+                <option value="DELETE">Xóa / Hủy</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- BẢNG DỮ LIỆU AUDIT LOG -->
+<div class="card table-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>THỜI GIAN</th>
+                    <th>TÀI KHOẢN</th>
+                    <th>HÀNH ĐỘNG</th>
+                    <th>PHÂN HỆ / BẢNG</th>
+                    <th>CHI TIẾT THAY ĐỔI</th>
+                    <th>ĐỊA CHỈ IP</th>
+                </tr>
+            </thead>
+            <tbody id="auditTableBody">
+                <tr data-action="APPROVE">
+                    <td style="color:#64748b;">12/10/2026 15:30:12</td>
+                    <td class="font-medium">admin</td>
+                    <td><span class="badge" style="background:#f0fdf4; color:#16a34a; font-weight:600;">APPROVE</span></td>
+                    <td class="font-mono">ImportOrder</td>
+                    <td>Duyệt nhập kho chứng từ <strong>PN-2026-004</strong> (2,000 lon Coca Cola)</td>
+                    <td class="font-mono" style="color:#64748b;">192.168.1.15</td>
+                </tr>
+                <tr data-action="CREATE">
+                    <td style="color:#64748b;">12/10/2026 14:10:05</td>
+                    <td class="font-medium">manager_kho</td>
+                    <td><span class="badge" style="background:#eff6ff; color:#2563eb; font-weight:600;">CREATE</span></td>
+                    <td class="font-mono">ImportOrder</td>
+                    <td>Tạo mới phiếu nhập hàng <strong>PN-2026-005</strong> từ Acecook VN</td>
+                    <td class="font-mono" style="color:#64748b;">192.168.1.22</td>
+                </tr>
+                <tr data-action="UPDATE">
+                    <td style="color:#64748b;">11/10/2026 11:05:40</td>
+                    <td class="font-medium">admin</td>
+                    <td><span class="badge" style="background:#fef3c7; color:#b45309; font-weight:600;">UPDATE</span></td>
+                    <td class="font-mono">Product</td>
+                    <td>Cập nhật giá bán lẻ sản phẩm <strong>SKU-MI-HAOHAO</strong> từ 120,000 -> 125,000</td>
+                    <td class="font-mono" style="color:#64748b;">192.168.1.15</td>
+                </tr>
+                <tr data-action="LOGIN">
+                    <td style="color:#64748b;">11/10/2026 08:00:21</td>
+                    <td class="font-medium">staff_nam</td>
+                    <td><span class="badge" style="background:#f1f5f9; color:#475569; font-weight:600;">LOGIN</span></td>
+                    <td class="font-mono">Auth</td>
+                    <td>Đăng nhập hệ thống thành công</td>
+                    <td class="font-mono" style="color:#64748b;">192.168.1.30</td>
+                </tr>
+                <tr data-action="DELETE">
+                    <td style="color:#64748b;">01/10/2026 17:45:10</td>
+                    <td class="font-medium">admin</td>
+                    <td><span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:600;">DELETE</span></td>
+                    <td class="font-mono">ImportOrder</td>
+                    <td>Hủy bỏ phiếu nhập hàng chưa kiểm đếm <strong>PN-2026-002</strong></td>
+                    <td class="font-mono" style="color:#64748b;">192.168.1.15</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PHÂN TRANG -->
+    <div class="table-pagination">
+        <span class="pagination-info">Hiển thị 5 trên 5 bản ghi mới nhất</span>
+        <div class="pagination-buttons">
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="btn-page active">1</button>
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function filterAuditLogs() {
+        const keyword = document.getElementById('searchLogInput').value.toLowerCase();
+        const action = document.getElementById('logActionFilter').value;
+        const rows = document.querySelectorAll('#auditTableBody tr');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const rowAction = row.getAttribute('data-action');
+
+            const matchText = text.includes(keyword);
+            const matchAction = !action || rowAction === action;
+
+            row.style.display = (matchText && matchAction) ? '' : 'none';
+        });
+    }
+</script>
+}

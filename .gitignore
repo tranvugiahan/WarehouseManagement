@@ -1,6 +1,9 @@
 # Visual Studio and .NET outputs
 .vs/
 .vscode/
+.idea/
+*.swp
+*.*~
 **/bin/
 **/obj/
 *.csproj.user

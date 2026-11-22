@@ -1,9 +1,14 @@
 using System.Text;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using WarehouseManagement.AppData.Repositories;
 using WarehouseManagement.Models;
 using WarehouseManagement.Services;
@@ -42,6 +47,50 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     context.Fail("Phiên đăng nhập đã hết hạn hoặc bị thu hồi.");
             }
         };
+    })
+    .AddCookie("MvcCookie", options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = false;
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var principal = context.Principal;
+            var sessionId = principal?.FindFirstValue("sid");
+            var userIdText = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var refreshToken = principal?.FindFirstValue("refresh_token");
+            var accessExpiresText = principal?.FindFirstValue("access_expires_at");
+            var store = context.HttpContext.RequestServices.GetRequiredService<IRefreshSessionStore>();
+
+            if (string.IsNullOrEmpty(sessionId) || !int.TryParse(userIdText, out var userId) ||
+                string.IsNullOrEmpty(refreshToken) || !DateTime.TryParse(accessExpiresText, out var accessExpiresAt) ||
+                !await store.IsActiveAsync(sessionId, userId))
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync("MvcCookie");
+                return;
+            }
+
+            if (accessExpiresAt > DateTime.UtcNow)
+                return;
+
+            var sessions = context.HttpContext.RequestServices.GetRequiredService<RefreshSessionService>();
+            var refreshed = await sessions.RefreshAsync(refreshToken);
+            if (refreshed is null)
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync("MvcCookie");
+                return;
+            }
+
+            var identity = (ClaimsIdentity)principal!.Identity!;
+            identity.RemoveClaim(identity.FindFirst("refresh_token")!);
+            identity.RemoveClaim(identity.FindFirst("access_expires_at")!);
+            identity.AddClaim(new Claim("refresh_token", refreshed.RefreshToken));
+            identity.AddClaim(new Claim("access_expires_at", refreshed.ExpiresAt.ToString("O")));
+            context.Properties.ExpiresUtc = refreshed.RefreshExpiresAt;
+            context.ShouldRenew = true;
+        };
     });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserStore, UserStore>();
@@ -59,6 +108,14 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "API quản lý kho: danh mục, đơn vị tính và nhà cung cấp. DELETE là xóa mềm (Status = INACTIVE). Khi PUT, gửi Status là ACTIVE hoặc INACTIVE."
     });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Dán accessToken từ POST /api/auth/login. Không thêm tiền tố Bearer."
+    });
+    options.OperationFilter<BearerAuthOperationFilter>();
 });
 
 
@@ -114,3 +171,24 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+internal sealed class BearerAuthOperationFilter : IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        var metadata = context.ApiDescription.ActionDescriptor.EndpointMetadata;
+        if (metadata.OfType<IAllowAnonymous>().Any() || !metadata.OfType<IAuthorizeData>().Any())
+            return;
+
+        operation.Security =
+        [
+            new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                }] = Array.Empty<string>()
+            }
+        ];
+    }
+}

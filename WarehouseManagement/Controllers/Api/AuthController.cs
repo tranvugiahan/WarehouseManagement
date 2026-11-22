@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WarehouseManagement.Models.Requests;
@@ -27,6 +28,22 @@ public sealed class AuthController(AuthService auth, RefreshSessionService sessi
         return result is null
             ? Unauthorized(new { error = "Phiên đăng nhập không hợp lệ hoặc đã hết hạn." })
             : Ok(result);
+    }
+
+    [Authorize(Roles = "ADMIN,MANAGER,EMPLOYEE")]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var userIdText = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
+        if (!int.TryParse(userIdText, out var userId))
+            return Unauthorized();
+
+        var changed = await auth.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
+        Response.Headers.CacheControl = "no-store";
+        return changed
+            ? NoContent()
+            : BadRequest(new { error = "Mật khẩu hiện tại không hợp lệ hoặc tài khoản không hoạt động." });
     }
 
     [Authorize]

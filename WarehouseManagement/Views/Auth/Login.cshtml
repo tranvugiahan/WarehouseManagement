@@ -1,0 +1,45 @@
+@{
+    Layout = null; // Trang đăng nhập UI-01 không dùng Layout có Sidebar
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập - WMS Core</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/stylelogin.css" asp-append-version="true" />
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="brand">
+            <span>WMS CORE</span>
+        </div>
+        <h2 class="title">Đăng nhập</h2>
+        <p class="subtitle">Nhập tài khoản để truy cập kho hàng</p>
+
+        <form action="@Url.Content("~/Auth/Login")" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" role="alert" class="login-error"></div>
+            <div class="form-group">
+                <label class="form-label" for="usernameOrEmail">Tên đăng nhập / Email</label>
+                <input id="usernameOrEmail" name="usernameOrEmail" type="text" class="form-input" placeholder="Tài khoản hoặc email..." autocomplete="username" required />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Mật khẩu</label>
+                <div class="password-field">
+                    <input id="password" name="password" type="password" class="form-input" placeholder="••••••••" autocomplete="current-password" required />
+                    <button type="button" class="password-toggle" data-target="password" data-label="mật khẩu" aria-label="Hiện mật khẩu" aria-controls="password" aria-pressed="false" title="Hiện mật khẩu"><i class="fa-regular fa-eye" aria-hidden="true"></i></button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">Đăng nhập</button>
+        </form>
+    </div>
+
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+</body>
+</html>

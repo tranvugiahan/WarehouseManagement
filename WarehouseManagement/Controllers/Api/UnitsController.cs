@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using WarehouseManagement.Models;
 using WarehouseManagement.Models.Requests;
@@ -6,6 +8,7 @@ using WarehouseManagement.Services;
 namespace WarehouseManagement.Controllers.Api;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/units")]
 public class UnitsController : ControllerBase
 {
@@ -37,6 +40,7 @@ public class UnitsController : ControllerBase
 
     // POST /api/units
     [HttpPost]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Create([FromBody] CreateUnitRequest request)
     {
         var created = await _service.CreateAsync(new Unit { Name = request.Name,  });
@@ -49,6 +53,7 @@ public class UnitsController : ControllerBase
 
     // PUT /api/units/1
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Update(
         int id, [FromBody] UpdateUnitRequest request)
     {
@@ -62,6 +67,7 @@ public class UnitsController : ControllerBase
 
     // DELETE /api/units/1
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "ADMIN,MANAGER")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _service.DeactivateAsync(id);

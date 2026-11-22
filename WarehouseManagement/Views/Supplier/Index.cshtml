@@ -1,0 +1,172 @@
+@{
+    ViewData["Title"] = "Quản lý Nhà cung cấp";
+}
+
+<!-- 1. TIÊU ĐỀ TRANG & NÚT THÊM -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Quản lý Nhà cung cấp</h1>
+        <p class="page-subtitle">Danh sách các đối tác cung ứng hàng hóa cho kho</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('createSupplierModal')">
+        <i class="fa-solid fa-plus"></i> Thêm nhà cung cấp
+    </button>
+</div>
+
+<!-- 2. THANH TÌM KIẾM -->
+<div class="card toolbar-card">
+    <div class="toolbar">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchSupplierInput" placeholder="Tìm theo mã NCC, tên, số điện thoại..." onkeyup="filterSuppliers()" />
+        </div>
+        <div class="filters">
+            <select id="supplierStatusFilter" onchange="filterSuppliers()" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active">Đang hợp tác</option>
+                <option value="inactive">Tạm ngưng</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- 3. BẢNG DỮ LIỆU NHÀ CUNG CẤP -->
+<div class="card table-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>MÃ NCC</th>
+                    <th>TÊN NHÀ CUNG CẤP</th>
+                    <th>SỐ ĐIỆN THOẠI</th>
+                    <th>EMAIL</th>
+                    <th>ĐỊA CHỈ</th>
+                    <th>TRẠNG THÁI</th>
+                    <th class="text-right">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody id="supplierTableBody">
+                <tr data-status="active">
+                    <td class="font-mono"><strong>NCC-COCA-VN</strong></td>
+                    <td class="font-medium">Công ty TNHH Nước giải khát Coca-Cola VN</td>
+                    <td>028 3896 1000</td>
+                    <td>contact@cocacola.com.vn</td>
+                    <td>TP. Thủ Đức, TP. Hồ Chí Minh</td>
+                    <td><span class="status-badge status-active">Đang hợp tác</span></td>
+                    <td class="text-right">
+                        <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action delete" title="Xóa"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                    </td>
+                </tr>
+                <tr data-status="active">
+                    <td class="font-mono"><strong>NCC-ACECOOK</strong></td>
+                    <td class="font-medium">Công ty Cổ phần Acecook Việt Nam</td>
+                    <td>028 3815 4064</td>
+                    <td>info@acecookvietnam.com</td>
+                    <td>KCN Tân Bình, Tân Phú, TP. HCM</td>
+                    <td><span class="status-badge status-active">Đang hợp tác</span></td>
+                    <td class="text-right">
+                        <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action delete" title="Xóa"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                    </td>
+                </tr>
+                <tr data-status="inactive">
+                    <td class="font-mono"><strong>NCC-ORION-VINA</strong></td>
+                    <td class="font-medium">Công ty TNHH Thực phẩm Orion Vina</td>
+                    <td>0274 378 7999</td>
+                    <td>support@orion.vn</td>
+                    <td>KCN Mỹ Phước 2, Bến Cát, Bình Dương</td>
+                    <td><span class="status-badge status-inactive">Tạm ngưng</span></td>
+                    <td class="text-right">
+                        <button class="btn-action edit" title="Chỉnh sửa"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action delete" title="Xóa"><i class="fa-solid fa-trash-can" style="color:#ef4444;"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PHÂN TRANG -->
+    <div class="table-pagination">
+        <span class="pagination-info">Hiển thị 3 trên 3 nhà cung cấp</span>
+        <div class="pagination-buttons">
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="btn-page active">1</button>
+            <button class="btn-page" disabled><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- 4. MODAL THÊM MỚI NHÀ CUNG CẤP -->
+<div id="createSupplierModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-building" style="margin-right:8px;"></i> Thêm nhà cung cấp mới</h3>
+            <button class="modal-close" onclick="closeModal('createSupplierModal')">&times;</button>
+        </div>
+        <form onsubmit="handleSaveSupplier(event)">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Mã NCC <span class="required">*</span></label>
+                        <input type="text" class="form-input" placeholder="VD: NCC-VINAMILK" required />
+                    </div>
+                    <div class="form-group flex-2">
+                        <label class="form-label">Tên nhà cung cấp <span class="required">*</span></label>
+                        <input type="text" class="form-input" placeholder="Nhập tên đối tác / công ty..." required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Số điện thoại <span class="required">*</span></label>
+                        <input type="tel" class="form-input" placeholder="028..." required />
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Email liên hệ</label>
+                        <input type="email" class="form-input" placeholder="email@congty.com" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Địa chỉ</label>
+                    <input type="text" class="form-input" placeholder="Số nhà, đường, quận/huyện, tỉnh/thành..." />
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createSupplierModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Lưu nhà cung cấp</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function filterSuppliers() {
+        const keyword = document.getElementById('searchSupplierInput').value.toLowerCase();
+        const status = document.getElementById('supplierStatusFilter').value;
+        const rows = document.querySelectorAll('#supplierTableBody tr');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const rowStatus = row.getAttribute('data-status');
+
+            const matchText = text.includes(keyword);
+            const matchStatus = !status || rowStatus === status;
+
+            row.style.display = (matchText && matchStatus) ? '' : 'none';
+        });
+    }
+
+    function handleSaveSupplier(e) {
+        e.preventDefault();
+        alert('Đã lưu thông tin nhà cung cấp thành công!');
+        closeModal('createSupplierModal');
+    }
+</script>
+}

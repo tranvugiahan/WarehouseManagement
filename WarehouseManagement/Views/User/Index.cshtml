@@ -20,6 +20,28 @@
         .validation-error.show {
             display: block;
         }
+
+    .role-option-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        margin-bottom: 10px;
+    }
+
+        .role-option-card:hover {
+            border-color: #94a3b8;
+            background-color: #f8fafc;
+        }
+
+        .role-option-card.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+        }
 </style>
 
 <div class="page-header">
@@ -80,6 +102,7 @@
                     <td style="color:#64748b;">10/01/2026</td>
                     <td class="text-right action-cell">
                         <button class="btn-action edit" title="Chỉnh sửa" onclick="openEditUserModal(this)"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action" style="color:#2563eb;" title="Gán vai trò" onclick="openAssignRoleModal(this)"><i class="fa-solid fa-user-shield"></i></button>
                         <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
                     </td>
                 </tr>
@@ -92,6 +115,7 @@
                     <td style="color:#64748b;">12/01/2026</td>
                     <td class="text-right action-cell">
                         <button class="btn-action edit" title="Chỉnh sửa" onclick="openEditUserModal(this)"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action" style="color:#2563eb;" title="Gán vai trò" onclick="openAssignRoleModal(this)"><i class="fa-solid fa-user-shield"></i></button>
                         <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
                         <button class="btn-action delete" style="color:#dc2626;" title="Vô hiệu hóa tài khoản" onclick="openDeactivateModal(this)"><i class="fa-solid fa-user-slash"></i></button>
                     </td>
@@ -105,6 +129,7 @@
                     <td style="color:#64748b;">15/02/2026</td>
                     <td class="text-right action-cell">
                         <button class="btn-action edit" title="Chỉnh sửa" onclick="openEditUserModal(this)"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action" style="color:#2563eb;" title="Gán vai trò" onclick="openAssignRoleModal(this)"><i class="fa-solid fa-user-shield"></i></button>
                         <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
                         <button class="btn-action delete" style="color:#dc2626;" title="Vô hiệu hóa tài khoản" onclick="openDeactivateModal(this)"><i class="fa-solid fa-user-slash"></i></button>
                     </td>
@@ -118,6 +143,7 @@
                     <td style="color:#64748b;">20/02/2026</td>
                     <td class="text-right action-cell">
                         <button class="btn-action edit" title="Chỉnh sửa" onclick="openEditUserModal(this)"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-action" style="color:#2563eb;" title="Gán vai trò" onclick="openAssignRoleModal(this)"><i class="fa-solid fa-user-shield"></i></button>
                         <button class="btn-action" title="Mở khóa"><i class="fa-solid fa-lock-open"></i></button>
                     </td>
                 </tr>
@@ -247,6 +273,60 @@
     </div>
 </div>
 
+<!-- MODAL GÁN VAI TRÒ CHO TÀI KHOẢN (FR2.4, MỤC 3) -->
+<div id="assignRoleModal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3 style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-user-shield" style="color: #2563eb;"></i> Gán vai trò tài khoản
+            </h3>
+            <button class="modal-close" onclick="closeModal('assignRoleModal')">&times;</button>
+        </div>
+        <form onsubmit="handleAssignRole(event)">
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Tài khoản được phân quyền</label>
+                    <select id="assignAccountSelect" class="form-select" onchange="onAssignAccountChange()">
+                    </select>
+                </div>
+
+                <label class="form-label" style="margin-bottom: 8px; display: block;">Chọn vai trò áp dụng <span class="required">*</span></label>
+
+                <label class="role-option-card" id="roleCard-ADMIN" onclick="selectRoleOption('ADMIN')">
+                    <input type="radio" name="assignRoleRadio" value="ADMIN" style="margin-top: 4px;" />
+                    <div>
+                        <div style="font-weight: 600; color: #b91c1c;">Admin (Quản trị viên hệ thống)</div>
+                        <div style="font-size: 0.85rem; color: #475569; margin-top: 2px;">Toàn quyền quản lý tài khoản, cấu hình danh mục, duyệt phiếu và xem Audit Log.</div>
+                    </div>
+                </label>
+
+                <label class="role-option-card" id="roleCard-MANAGER" onclick="selectRoleOption('MANAGER')">
+                    <input type="radio" name="assignRoleRadio" value="MANAGER" style="margin-top: 4px;" />
+                    <div>
+                        <div style="font-weight: 600; color: #b45309;">Manager (Quản lý kho)</div>
+                        <div style="font-size: 0.85rem; color: #475569; margin-top: 2px;">Quản lý sản phẩm, nhà cung cấp, duyệt phiếu nhập/xuất/hủy, kiểm kê và xem báo cáo.</div>
+                    </div>
+                </label>
+
+                <label class="role-option-card" id="roleCard-EMPLOYEE" onclick="selectRoleOption('EMPLOYEE')">
+                    <input type="radio" name="assignRoleRadio" value="EMPLOYEE" style="margin-top: 4px;" />
+                    <div>
+                        <div style="font-weight: 600; color: #0369a1;">Employee (Nhân viên kho)</div>
+                        <div style="font-size: 0.85rem; color: #475569; margin-top: 2px;">Lập phiếu nhập/xuất kho, tra cứu tồn kho và thực hiện kiểm kê hàng hóa.</div>
+                    </div>
+                </label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('assignRoleModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-check"></i> Lưu phân quyền
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- MODAL XÁC NHẬN VÔ HIỆU HÓA TÀI KHOẢN (FR2.3, UI-03, MỤC 8.1) -->
 <div id="deactivateUserModal" class="modal-overlay">
     <div class="modal-container" style="max-width: 460px;">
@@ -282,7 +362,6 @@
         function openModal(id) { document.getElementById(id).classList.add('show'); }
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        // --- HELPER HIỂN THỊ LỖI VALIDATION NGAY TẠI TRƯỜNG NHẬP (MỤC 8.1) ---
         function setFieldError(inputId, message) {
             const input = document.getElementById(inputId);
             const errEl = document.getElementById('err-' + inputId);
@@ -370,9 +449,11 @@
 
             const actionButtons = status === 'active'
                 ? `<button class="btn-action edit" title="Chỉnh sửa" onclick="openEditUserModal(this)"><i class="fa-solid fa-pen-to-square"></i></button>
+                   <button class="btn-action" style="color:#2563eb;" title="Gán vai trò" onclick="openAssignRoleModal(this)"><i class="fa-solid fa-user-shield"></i></button>
                    <button class="btn-action" title="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
                    <button class="btn-action delete" style="color:#dc2626;" title="Vô hiệu hóa tài khoản" onclick="openDeactivateModal(this)"><i class="fa-solid fa-user-slash"></i></button>`
                 : `<button class="btn-action edit" title="Chỉnh sửa" onclick="openEditUserModal(this)"><i class="fa-solid fa-pen-to-square"></i></button>
+                   <button class="btn-action" style="color:#2563eb;" title="Gán vai trò" onclick="openAssignRoleModal(this)"><i class="fa-solid fa-user-shield"></i></button>
                    <button class="btn-action" title="Mở khóa"><i class="fa-solid fa-lock-open"></i></button>`;
 
             const tr = document.createElement('tr');
@@ -459,6 +540,67 @@
             alert(`Cập nhật thông tin tài khoản "${username}" thành công!`);
         }
 
+        // --- GÁN VAI TRÒ CHO TÀI KHOẢN (FR2.4) ---
+        function openAssignRoleModal(button) {
+            const row = button.closest('tr');
+            const selectedUsername = row.getAttribute('data-username');
+            const selectEl = document.getElementById('assignAccountSelect');
+
+            selectEl.innerHTML = '';
+            document.querySelectorAll('#userTableBody tr').forEach(r => {
+                const u = r.getAttribute('data-username');
+                const fn = r.getAttribute('data-fullname');
+                const opt = document.createElement('option');
+                opt.value = u;
+                opt.textContent = `${fn} (${u})`;
+                if (u === selectedUsername) opt.selected = true;
+                selectEl.appendChild(opt);
+            });
+
+            selectRoleOption(row.getAttribute('data-role'));
+            openModal('assignRoleModal');
+        }
+
+        function onAssignAccountChange() {
+            const selectedUsername = document.getElementById('assignAccountSelect').value;
+            const row = Array.from(document.querySelectorAll('#userTableBody tr')).find(r => r.getAttribute('data-username') === selectedUsername);
+            if (row) {
+                selectRoleOption(row.getAttribute('data-role'));
+            }
+        }
+
+        function selectRoleOption(role) {
+            ['ADMIN', 'MANAGER', 'EMPLOYEE'].forEach(r => {
+                const card = document.getElementById('roleCard-' + r);
+                const radio = card ? card.querySelector('input[type="radio"]') : null;
+                if (r === role) {
+                    card.classList.add('selected');
+                    if (radio) radio.checked = true;
+                } else {
+                    card.classList.remove('selected');
+                    if (radio) radio.checked = false;
+                }
+            });
+        }
+
+        function handleAssignRole(e) {
+            e.preventDefault();
+            const username = document.getElementById('assignAccountSelect').value;
+            const checkedRadio = document.querySelector('input[name="assignRoleRadio"]:checked');
+            if (!username || !checkedRadio) return;
+
+            const newRole = checkedRadio.value;
+            const row = Array.from(document.querySelectorAll('#userTableBody tr')).find(r => r.getAttribute('data-username') === username);
+            if (row) {
+                row.setAttribute('data-role', newRole);
+                row.querySelector('.col-role').innerHTML = getRoleBadgeHtml(newRole);
+            }
+
+            closeModal('assignRoleModal');
+            filterUsers();
+            alert(`Đã gán vai trò "${newRole}" cho tài khoản "${username}" thành công!`);
+        }
+
         // --- VÔ HIỆU HÓA TÀI KHOẢN (FR2.3) ---
         function openDeactivateModal(button) {
             targetUserRow = button.closest('tr');
@@ -484,6 +626,7 @@
             if (actionCell) {
                 actionCell.innerHTML = `
                     <button class="btn-action edit" title="Chỉnh sửa" onclick="openEditUserModal(this)"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn-action" style="color:#2563eb;" title="Gán vai trò" onclick="openAssignRoleModal(this)"><i class="fa-solid fa-user-shield"></i></button>
                     <button class="btn-action" title="Mở khóa"><i class="fa-solid fa-lock-open"></i></button>
                 `;
             }

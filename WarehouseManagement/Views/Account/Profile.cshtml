@@ -62,7 +62,7 @@
             {
                 <p role="alert" style="padding: 12px; border-radius: 8px; background: #fee2e2; color: #991b1b;">@errorMessage</p>
             }
-            <form asp-controller="Account" asp-action="ChangePassword" method="post" autocomplete="off">
+            <form asp-controller="Account" asp-action="ChangePassword" method="post" autocomplete="off" id="changePasswordForm" data-url="@Url.Action("ChangePassword", "Account")">
                 <div class="form-group">
                     <label class="form-label" for="currentPassword">Mật khẩu hiện tại <span class="required">*</span></label>
                     <div class="password-field">
@@ -94,11 +94,5 @@
 </div>
 
 @section Scripts {
-<script>
-    function handleUpdateProfile(e) {
-        e.preventDefault();
-        alert('Cập nhật thông tin tài khoản thành công!');
-    }
-
-</script>
+    <script src="~/js/account-profile.js" asp-append-version="true"></script>
 }

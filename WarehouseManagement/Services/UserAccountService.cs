@@ -4,7 +4,7 @@ using WarehouseManagement.Models.Requests;
 
 namespace WarehouseManagement.Services;
 
-public enum UpdateUserResult { Updated, NotFound, Conflict, SelfPasswordDenied }
+public enum UpdateUserResult { Updated, NotFound, Conflict, SelfPasswordDenied, SelfRoleDenied }
 public enum DeactivateUserResult { Deactivated, AlreadyInactive, NotFound, SelfDenied }
 public enum ActivateUserResult { Activated, AlreadyActive, NotFound }
 public enum ResetPasswordResult { Reset, NotFound, SelfDenied }
@@ -38,6 +38,8 @@ public sealed class UserAccountService(IUserStore users, IPasswordHasher<User> p
         var user = await users.FindByIdAsync(userId);
         if (user is null)
             return UpdateUserResult.NotFound;
+        if (userId == updatedBy && request.Role != user.Role)
+            return UpdateUserResult.SelfRoleDenied;
 
         user.FullName = request.FullName.Trim();
         user.Username = request.Username.Trim();

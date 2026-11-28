@@ -49,6 +49,7 @@ public sealed class UsersController(UserAccountService accounts) : ControllerBas
             UpdateUserResult.NotFound => NotFound(),
             UpdateUserResult.Conflict => Conflict(new { error = "Username hoặc email đã tồn tại." }),
             UpdateUserResult.SelfPasswordDenied => Conflict(new { error = "Hãy đổi mật khẩu của bạn ở trang cá nhân." }),
+            UpdateUserResult.SelfRoleDenied => Conflict(new { error = "Không thể thay đổi vai trò của tài khoản đang sử dụng." }),
             _ => NoContent()
         };
     }

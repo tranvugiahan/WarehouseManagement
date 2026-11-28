@@ -49,6 +49,7 @@ public class UserController(UserAccountService accounts) : Controller
             UpdateUserResult.NotFound => NotFound(new { error = "Không tìm thấy tài khoản." }),
             UpdateUserResult.Conflict => Conflict(new { error = "Tên đăng nhập hoặc email đã tồn tại." }),
             UpdateUserResult.SelfPasswordDenied => Conflict(new { error = "Hãy đổi mật khẩu của bạn ở trang cá nhân." }),
+            UpdateUserResult.SelfRoleDenied => Conflict(new { error = "Không thể thay đổi vai trò của tài khoản đang sử dụng." }),
             _ => NoContent()
         };
     }

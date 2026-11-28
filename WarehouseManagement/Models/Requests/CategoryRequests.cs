@@ -5,9 +5,8 @@ namespace WarehouseManagement.Models.Requests;
 // Only fields accepted from the client; navigation properties are excluded.
 public class CreateCategoryRequest
 {
-    [Required, StringLength(100)]
+    [Required, StringLength(100), RegularExpression(@".*\S.*", ErrorMessage = "Tên nhóm hàng không được để trống.")]
     public string Name { get; set; } = string.Empty;
-
 }
 
 public class UpdateCategoryRequest : CreateCategoryRequest

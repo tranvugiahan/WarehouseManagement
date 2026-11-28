@@ -12,9 +12,9 @@ namespace WarehouseManagement.Controllers.Api;
 [Route("api/categories")]
 public class CategoriesController : ControllerBase
 {
-    private readonly CatalogService<Category> _service;
+    private readonly CategoryService _service;
 
-    public CategoriesController(CatalogService<Category> service)
+    public CategoriesController(CategoryService service)
     {
         _service = service;
     }
@@ -41,9 +41,14 @@ public class CategoriesController : ControllerBase
     // POST /api/categories
     [HttpPost]
     [Authorize(Roles = "ADMIN,MANAGER")]
+    [ProducesResponseType(typeof(Category), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] CreateCategoryRequest request)
     {
-        var created = await _service.CreateAsync(new Category { Name = request.Name,  });
+        var created = await _service.CreateAsync(request.Name);
+        if (created is null)
+            return Conflict(new { error = "Tên nhóm hàng đã tồn tại." });
 
         return CreatedAtAction(
             nameof(GetById),
@@ -54,20 +59,27 @@ public class CategoriesController : ControllerBase
     // PUT /api/categories/1
     [HttpPut("{id:int}")]
     [Authorize(Roles = "ADMIN,MANAGER")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(
         int id, [FromBody] UpdateCategoryRequest request)
     {
-        var success = await _service.UpdateAsync(id, new Category { Name = request.Name, Status = request.Status,  });
-
-        if (!success)
-            return NotFound();
-
-        return NoContent();
+        var result = await _service.UpdateAsync(id, request.Name, request.Status);
+        return result switch
+        {
+            CategoryWriteResult.NotFound => NotFound(),
+            CategoryWriteResult.NameConflict => Conflict(new { error = "Tên nhóm hàng đã tồn tại." }),
+            _ => NoContent()
+        };
     }
 
     // DELETE /api/categories/1
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "ADMIN,MANAGER")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _service.DeactivateAsync(id);
